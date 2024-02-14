@@ -134,17 +134,17 @@ or al,0000_0010B
 out 0x92,al
 
 ;------------------------------------------加载gdt-----------------------------------------
-lgdt [gdt_ptr]
+    lgdt [gdt_ptr]
 
 ;------------------------------------------cr0第0位置1-------------------------------
-mov eax,cr0
-or eax,0x00000001
-mov cr0,eax
+    mov eax,cr0
+    or eax,0x00000001
+    mov cr0,eax
 
-jmp dword SELECTOR_CODE:p_mode_start;刷新流水线
+    jmp dword SELECTOR_CODE:p_mode_start;刷新流水线
 
-.error_hlt:       ;出错则挂起
-    hlt
+    .error_hlt:       ;出错则挂起
+        hlt
 
 
 [bits 32]
@@ -154,9 +154,84 @@ p_mode_start:
     mov es,ax
     mov ss,ax
     mov esp,LOADER_STACK_TOP
-    mov ax,SELECTOR_VIDEO
-    mov gs,ax
+    
 
-    mov byte [gs:160],'P'
+    
 
-    jmp $
+;创建页目录及页表并初始化页内存位图
+   call setup_page
+;要将描述符表地址及偏移量写入内存gdt_ptr，一会儿用新地址重新加载
+   sgdt [gdt_ptr]              ;存储到原来gdt所在的位置
+
+;将gdt描述符中视频段描述符段基址+0x0000000
+   mov ebx,[gdt_ptr+2]              
+   or dword [ebx+0x18+4],0xc0000000
+
+   add dword [gdt_ptr+2],0xc0000000
+   add esp,0xc0000000
+
+;把页目录地址赋给cr3
+   mov eax,PAGE_DIR_TABLE_POS
+   mov cr3,eax
+
+;打开cr0的pg位
+   mov eax,cr0
+   or eax,0x80000000
+   mov cr0,eax
+
+;开启分页后用gdt新的地址重新加载
+   lgdt [gdt_ptr]
+
+   mov byte [gs:160],'V'
+
+   jmp $
+
+
+;------------------- 建立页表 -------------------
+setup_page:
+   mov ecx,4096
+   mov esi,0            ;将页目录占用空间清0
+.clear_page_dir:
+   mov byte [PAGE_DIR_TABLE_POS+esi],0
+   inc esi
+   loop .clear_page_dir
+
+;创建页目录项(PDE)
+.create_pde:
+   mov eax,PAGE_DIR_TABLE_POS
+   add eax,0x1000               ;此时的eax为第一个页表的物理地址
+   mov ebx,eax                  ;ebx=eax，为后续的.create_pte做准备，ebx为基址
+
+;下面将偏移地址0x0（第1个）和0xc00（第768个页目录项）存为第1个页表的地址，每个页表表示4MB内存
+   or eax,PG_US_U|PG_RW_W|PG_P        ;最低特权级|可读写|存在
+   mov [PAGE_DIR_TABLE_POS+0x0],eax   ;第1个页目录项
+   mov [PAGE_DIR_TABLE_POS+0xc00],eax ;第768个页目录项
+   sub eax,0x1000
+   mov [PAGE_DIR_TABLE_POS+4092],eax  ;最后一个页目录项指向页目录自己
+
+;创建页表项(PTE)
+   mov ecx,256                  ;对低端内存1MB建页表：1MB/4KB=256（256个页表项，1个页表足矣）
+   mov esi,0
+   mov edx,PG_US_U|PG_RW_W|PG_P ;最低特权第|可读写|存在
+.create_pte:
+   mov [ebx+esi*4],edx          ;逐个页表项设置
+   add edx,4096                 ;因为1个页表4KB，所以edx的基址+4KB
+   inc esi
+   loop .create_pte
+
+;创建内核其它页表的PDE
+   mov eax,PAGE_DIR_TABLE_POS
+   add eax,0x2000               ;此时的eax为第二个页表的物理地址
+   or eax,PG_US_U|PG_RW_W|PG_P  ;最低特权级|可读写|存在
+   mov ebx,PAGE_DIR_TABLE_POS
+   mov ecx,254
+   mov esi,769
+.create_kernel_pde:
+   mov [ebx+esi*4],eax          ;将第2个~第256个页表的地址逐个存入页表项
+   inc esi
+   add eax,0x1000               ;下一个页表的地址
+   loop .create_kernel_pde
+
+   ret
+
+   

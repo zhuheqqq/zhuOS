@@ -8,6 +8,9 @@ DESC_G_4K   equ	  1_00000000000000000000000b
 DESC_D_32   equ	   1_0000000000000000000000b
 DESC_L	    equ	    0_000000000000000000000b	;  64位代码标记，此处标记为0便可。
 DESC_AVL    equ	     0_00000000000000000000b	;  cpu不用此位，暂置为0  
+
+PAGE_DIR_TABLE_POS equ 0x100000       ;页目录表物理地址
+
 DESC_LIMIT_CODE2  equ 1111_0000000000000000b
 DESC_LIMIT_DATA2  equ DESC_LIMIT_CODE2
 DESC_LIMIT_VIDEO2  equ 0000_0000000000000000b
@@ -33,3 +36,11 @@ RPL2  equ   10b
 RPL3  equ   11b
 TI_GDT	 equ   000b
 TI_LDT	 equ   100b
+
+
+;--------------------------页表相关属性----------------------------
+PG_P equ 1b
+PG_RW_R equ 00b
+PG_RW_W equ 10b
+PG_US_S equ 000b
+PG_US_U equ 100b
