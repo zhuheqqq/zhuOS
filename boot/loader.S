@@ -156,7 +156,12 @@ p_mode_start:
     mov esp,LOADER_STACK_TOP
     
 
-    
+mov eax,KERNEL_START_SECTOR ;kernel.bin所在扇区号
+mov ebx,KERNEL_BIN_BASE_ADDR;从磁盘读出后，写入到ebx指定的地址
+mov ecx,200                 ;读入的扇区数
+
+call rd_disk_m_32   ;从硬盘读取文件
+ 
 
 ;创建页目录及页表并初始化页内存位图
    call setup_page
@@ -182,9 +187,16 @@ p_mode_start:
 ;开启分页后用gdt新的地址重新加载
    lgdt [gdt_ptr]
 
-   mov byte [gs:160],'V'
+   mov eax,SELECTOR_VIDEO
+   mov gs,eax
 
-   jmp $
+   jmp SELECTOR_CODE:enter_kernel
+
+;-----------------------跳转到kernel-------------------------
+enter_kernel:
+    call kernel_init
+    mov esp,0xc009f000
+    jmp KERNEL_ENTER_ADDR
 
 
 ;------------------- 建立页表 -------------------
@@ -232,6 +244,124 @@ setup_page:
    add eax,0x1000               ;下一个页表的地址
    loop .create_kernel_pde
 
+   ret
+
+;------ 初始化内核 把缓冲区的内核代码放到0x1500区域 ------
+kernel_init:
+   xor eax,eax
+   xor ebx,ebx ;ebx记录程序头表地址
+   xor ecx,ecx ;cx记录程序头表中的program header数量
+   xor edx,edx ;dx记录program header尺寸，即e_phentsize
+
+   mov dx,[KERNEL_BIN_BASE_ADDR+42] ;偏移文件42字节处的属性是e_phentsize，表示program header大小
+   mov ebx,[KERNEL_BIN_BASE_ADDR+28] ;偏移文件28字节处是e_phoff，表示第一个program>在文件中的偏移量
+   add ebx,KERNEL_BIN_BASE_ADDR
+   mov cx,[KERNEL_BIN_BASE_ADDR+44] ;偏移文件44字节处是e_phnum，表示有几个program header
+.each_segment:
+   cmp byte [ebx+0],PT_NULL         ;若p_type等于PT_NULL，说明此program header未使用
+   je .PTNULL
+
+   mov eax,[ebx+8]
+   mov esi,0xc0001500
+   cmp eax,esi
+   jb .PTNULL
+
+   ;为函数memcpy压入参数，参数是从右往左依次压入，函数原型类似于memcpy(dst,src,size)
+   push dword [ebx+16]              ;偏移16字节的地方是p_filesz，压入函数memcpy的第三个参数：size
+   mov eax,[ebx+4]                  ;偏移4字节的位置是p_offset
+   add eax,KERNEL_BIN_BASE_ADDR     ;加上kernel.bin被加载到的物理地址，eax为该段的物理地址
+   push eax                         ;压入函数memcpy的第二个参数：src
+   push dword [ebx+8]               ;压入函数memcpy的第三个参数：dst，偏移量为8字节的位置是p_vaddr
+   call mem_cpy                     ;调用memcpy完成段复制
+   add esp,12                       ;清理栈中压入的三个参数
+.PTNULL:
+   add ebx,edx                      ;edx为program header大小，即e_phentsize，ebx指向下一个program_header
+   loop .each_segment
+   ret
+
+mem_cpy:
+   cld
+   push ebp
+   mov ebp,esp
+   push ecx          ;rep指令需要ecx，但ecx还此时用于外循环中，所以先push保存一下
+   mov edi,[ebp+8]
+   mov esi,[ebp+12]
+   mov ecx,[ebp+16]
+   rep movsb         ;逐字节拷贝
+
+   ;恢复
+   pop ecx
+   pop ebp
+   ret
+
+;------ rd_disk_m_32，类似于mbr.S中的rd_disk_m_16 ------
+rd_disk_m_32:
+   ;1 写入待操作磁盘数
+   ;2 写入LBA 低24位寄存器 确认扇区
+   ;3 device 寄存器 第4位主次盘 第6位LBA模式 改为1
+   ;4 command 写指令
+   ;5 读取status状态寄存器 判断是否完成工作
+   ;6 完成工作 取出数据
+
+   ;1 写入待操作磁盘数
+   mov esi,eax   ; !!! 备份eax
+   mov di,cx     ; !!! 备份cx
+
+   mov dx,0x1F2  ; 0x1F2为Sector Count 端口号 送到dx寄存器中
+   mov al,cl     ; !!! 忘了只能由ax al传递数据
+   out dx,al     ; !!! 这里修改了 原out dx,cl
+
+   mov eax,esi   ; !!!袄无! 原来备份是这个用 前面需要ax来传递数据 麻了
+
+   ;2 写入LBA 24位寄存器 确认扇区
+   mov cl,0x8    ; shr 右移8位 把24位给送到 LBA low mid high 寄存器中
+
+   mov dx,0x1F3  ; LBA low
+   out dx,al
+
+   mov dx,0x1F4  ; LBA mid
+   shr eax,cl    ; eax为32位 ax为16位 eax的低位字节 右移8位即8~15
+   out dx,al
+
+   mov dx,0x1F5
+   shr eax,cl
+   out dx,al
+
+   ;3 device 寄存器 第4位主次盘 第6位LBA模式 改为1
+             ; 24 25 26 27位 尽管我们知道ax只有2 但还是需要按规矩办事
+             ; 把除了最后四位的其他位置设置成0
+   shr eax,cl
+
+   and al,0x0f
+   or al,0xe0    ;!!! 把第四-七位设置成0111 转换为LBA模式
+   mov dx,0x1F6  ; 参照硬盘控制器端口表 Device
+   out dx,al
+
+   ;4 向Command写操作 Status和Command一个寄存器
+   mov dx,0x1F7  ; Status寄存器端口号
+   mov ax,0x20   ; 0x20是读命令
+   out dx,al
+
+   ;5 向Status查看是否准备好惹
+         ;设置不断读取重复 如果不为1则一直循环
+.not_ready:
+   nop           ; !!! 空跳转指令 在循环中达到延时目的
+   in al,dx      ; 把寄存器中的信息返还出来
+   and al,0x88   ; !!! 0100 0100 0x88
+   cmp al,0x08
+   jne .not_ready; !!! jump not equal == 0
+
+   ;6 读取数据
+   mov ax,di     ;把 di 储存的cx 取出来
+   mov dx,256
+   mul dx        ;与di 与 ax 做乘法 计算一共需要读多少次 方便作循环 低16位放ax 高16位放dx
+   mov cx,ax     ;loop 与 cx相匹配 cx-- 当cx == 0即跳出循环
+   mov dx,0x1F0
+.go_read_loop:
+   in ax,dx      ;两字节dx 一次读两字
+   mov [ebx],ax
+   add ebx,2
+   loop .go_read_loop
    ret
 
    
