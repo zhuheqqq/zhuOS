@@ -58,7 +58,7 @@ SECTION MBREE vstart=0x7c00
         mov cx,4                        ;待读入的扇区数
         call rd_disk_m_16               
 
-        jmp LOADER_BASE_ADDR+0x300
+        jmp LOADER_BASE_ADDR
 
 ;--------------------------------------------------------------------------------------------
 ;读取硬盘n个扇区
@@ -133,4 +133,4 @@ rd_disk_m_16:
 
 
         times 510-($-$$) db 0       ;凑够512字节
-        db 0x55,0xaa
+        db 0x55,0xaa            ;魔数
