@@ -154,6 +154,8 @@ p_mode_start:
     mov es,ax
     mov ss,ax
     mov esp,LOADER_STACK_TOP
+    ;mov ax,SELECTOR_VIDEO
+    ;mov gs,ax
     
 
 mov eax,KERNEL_START_SECTOR ;kernel.bin所在扇区号

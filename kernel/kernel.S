@@ -4,9 +4,9 @@
 %define ZERO push 0
 
 extern put_str      ;声明外部函数
+extern idt_table ;c中的注册的中断处理程序数组
 
 section .data
-intr_str db "interrupt occur!",0xa,0
 global intr_entry_table         ;全局数组
 intr_entry_table:
 
@@ -18,22 +18,41 @@ section .text       ;代码范围的起始定义
 intr%1entry:      ;每个中断处理程序都要压入中断向量号，所以每个中断类型自己知道自己的中断向量号
 
     %2
-    push intr_str
-    call put_str
-    add esp,4           ;跳过参数
+;保存上下文环境
+    push ds
+    push es
+    push fs
+    push gs
+    pushad
 
     ;如果是从片上的中断，要往主片和从片都发送EOI
     mov al,0x20         ;中断结束命令EOI
     out 0xa0,al         ;向从片发送
     out 0x20,al         ;向主片发送
 
-    add esp,4           ;跨过error_code
-    iret                ;从中断返回，32位下等同指令iretd
+    push %1
+
+    call [idt_table+%1*4];调用c的中断处理函数
+    jmp intr_exit
 
 section .data   
     dd intr%1entry      ;存储各个中断入口程序地址，形成intr_entry_table数组
 
 %endmacro
+
+section .text
+global intr_exit
+intr_exit:
+;恢复上下文环境
+    add esp,4
+    popad
+    pop gs
+    pop fs
+    pop es
+    pop ds
+    add esp,4   ;跳过error_code
+    iretd
+
 
 VECTOR 0x00,ZERO
 VECTOR 0x01,ZERO

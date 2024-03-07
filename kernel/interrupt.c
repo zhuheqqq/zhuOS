@@ -11,6 +11,14 @@
 
 #define IDT_DESC_CNT 0x21   //总共支持的中断数
 
+
+char* intr_name[IDT_DESC_CNT];//保存异常的名字
+intr_handler idt_table[IDT_DESC_CNT];
+
+//定义中断处理程序数组，在kernel.S中定义的intrXXentry只是中断处理程序的入口，最终调用的是ide_table的处理程序
+
+extern intr_handler intr_entry_table[IDT_DESC_CNT];//声明引用定义在kernel.S中的中断处理函数入口数组
+
 //中断门描述符结构体
 struct gate_desc{
     uint16_t func_offset_low_word;
@@ -68,10 +76,50 @@ static void idt_desc_init(void){
     put_str("idt_desc_init done\n");
 }
 
+//通用的中断处理函数，一般用在异常出现时处理
+static void general_intr_handler(uint8_t vec_nr){
+    if(vec_nr==0x27||vec_nr==0x2f){
+        return;//IRQ7和IRQ15会产生伪中断，不处理
+    }
+    put_str("int vector:0x");
+    put_int(vec_nr);
+    put_char('\n');
+}
+
+//一般中断处理函数注册及异常名称注册
+static void exception_init(void){
+    int i;
+    for(i=0;i<IDT_DESC_CNT;i++){
+        idt_table[i]=general_intr_handler;
+        intr_name[i]="unknown";
+    }
+    intr_name[0]="#DE Divide Error";
+    intr_name[1]="#DE Debug Exception";
+    intr_name[2]="NMI Interrupt";
+    intr_name[3]="#BP Breakpoint Exception";
+    intr_name[4]="#OF Overflow Exception";
+    intr_name[5]="#BR BOUND Range Exceeded Exception";
+    intr_name[6] = "#UD Invalid Opcode Exception";
+    intr_name[7] = "#NM Device Not Available Exception";
+    intr_name[8] = "#DF Double Fault Exception";
+    intr_name[9] = "Coprocessor Segment Overrun";
+    intr_name[10] = "#TS Invalid TSS Exception";
+    intr_name[11] = "#NP Segment Not Present";
+    intr_name[12] = "#SS Stack Fault Exception";
+    intr_name[13] = "#GP General Protection Exception";
+    intr_name[14] = "#PF Page-Fault Exception";
+    // intr_name[15] 第15项是intel保留项，未使用
+    intr_name[16] = "#MF x87 FPU Floating-Point Error";
+    intr_name[17] = "#AC Alignment Check Exception";
+    intr_name[18] = "#MC Machine-Check Exception";
+    intr_name[19] = "#XF SIMD Floating-Point Exception";
+}
+
 //完成中断所有初始化工作
 void idt_init(){
     put_str("idt_init start\n");
     idt_desc_init();//初始化中断描述符表
+    exception_init();
     pic_init();     //初始化8259A
 
     //加载idt
