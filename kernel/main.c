@@ -4,8 +4,8 @@
 int main(void){
     put_str("hello kernel!\n");
     init_all();
-    //asm volatile("sti");
-    ASSERT(1==2);
+
+    put_str("wwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww");
 
     while(1);
 
