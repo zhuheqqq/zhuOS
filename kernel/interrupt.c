@@ -88,7 +88,6 @@ static void general_intr_handler(uint8_t vec_nr){
     put_int(vec_nr);
     put_char('\n');
 
-    put_str("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
 }
 
 //一般中断处理函数注册及异常名称注册
@@ -125,7 +124,6 @@ void idt_init(){
     put_str("idt_init start\n");
     idt_desc_init();//初始化中断描述符表
     exception_init();
-    put_str("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb");
     pic_init();     //初始化8259A
 
     //加载idt

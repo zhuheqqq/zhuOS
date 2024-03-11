@@ -18,7 +18,7 @@ bool bitmap_scan_test(struct bitmap* btmp,uint32_t bit_idx){
 //所以要确定所在的字节，需要将位索引除以8（向下取整），得到所在字节的索引。
 
     uint32_t bit_odd=bit_idx%8;//取余用于索引数组的位
-    return (btmp->bits[byte_idx]&(BITMAP_MASK<<bit_odd))?1:0;
+    return (btmp->bits[byte_idx]&(BITMAP_MASK<<bit_odd));
 }
 
 //在位图中申请连续cnt个位，成功返回起始下标，失败返回-1

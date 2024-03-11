@@ -5,7 +5,7 @@
 #define PG_SIZE 4096        //页的尺寸
 
 /*----------------------------------------位图地址-----------------------------
-0xc009f000是内核主线程栈顶，0x009e00是内核主线程的pcb
+0xc009f000是内核主线程栈顶，0xc009e00是内核主线程的pcb
 一个页框大小的位图可表示128mb内存，位图位置安排在地址0xc009a000
 这样最多支持4个页框的位图，即512mb
 */
@@ -25,7 +25,7 @@ struct virtual_addr kernel_vaddr;//用来给内核分配虚拟地址
 
 //初始化
 static void mem_pool_init(uint32_t all_mem){
-    put_str("----------mem_pool_init----------\n");
+    put_str("------------------------mem_pool_init start--------------------------------\n");
     uint32_t page_table_size=PG_SIZE*256;
 
     // 页表大小 = 1 页的页目录表 + 第 0 和第 768 个页目录项指向同一个页表 +
@@ -52,7 +52,7 @@ static void mem_pool_init(uint32_t all_mem){
     user_pool.phy_addr_start=up_start;
 
     kernel_pool.pool_size=kernel_free_pages*PG_SIZE;
-    user_pool.phy_addr_start=user_free_pages*PG_SIZE;
+    user_pool.pool_size=user_free_pages*PG_SIZE;
 
     kernel_pool.pool_bitmap.btmp_bytes_len=kbm_length;
     user_pool.pool_bitmap.btmp_bytes_len=ubm_length;
@@ -64,18 +64,20 @@ static void mem_pool_init(uint32_t all_mem){
 
 
     //-------------------------输出内存池信息----------------------------------
-    put_str("------------------kernel_pool_bitmap_start:");
+    put_str("------------------kernel_pool_bitmap_start:]");
     put_int((int)kernel_pool.pool_bitmap.bits);
+    put_str("\n");
 
     put_str("------------------kernel_pool_phy_addr_start:");
     put_int(kernel_pool.phy_addr_start);
     put_str("\n");
 
     put_str("------------------user_pool_bitmap_start:");
-    put_str(user_pool.pool_bitmap.bits);
+    put_int(user_pool.pool_bitmap.bits);
+    put_str("\n");
 
     put_str("-------------------user_pool_phy_addr_start:");
-    put_str(user_pool.phy_addr_start);
+    put_int(user_pool.phy_addr_start);
     put_str("\n");
 
     //将位图置0
@@ -89,15 +91,15 @@ static void mem_pool_init(uint32_t all_mem){
 
     kernel_vaddr.vaddr_start=K_HEAP_START;
     bitmap_init(&kernel_vaddr.vaddr_bitmap);
-    put_str("--------------------mem_pool_init done\n");
+    put_str("--------------------mem_pool_init done------------------------\n");
 
 }
 
 //内存管理部分入口
 
 void mem_init(){
-    put_str("----------------------mem_init_start--------------------------");
+    put_str("----------------------mem_init_start--------------------------\n");
     uint32_t mem_bytes_total=(*(uint32_t*)(0xb00));
     mem_pool_init(mem_bytes_total);
-    put_str("-----------------------mem_init_done--------------------------");
+    put_str("-----------------------mem_init_done--------------------------\n");
 }
