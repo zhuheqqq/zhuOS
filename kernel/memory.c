@@ -153,7 +153,7 @@ void* get_kernel_pages(uint32_t pg_cnt){
 
 //初始化
 static void mem_pool_init(uint32_t all_mem){
-    put_str("------------------------mem_pool_init start--------------------------------\n");
+    put_str("----------------------------mem_pool_init start---------------------\n");
     uint32_t page_table_size=PG_SIZE*256;
 
     // 页表大小 = 1 页的页目录表 + 第 0 和第 768 个页目录项指向同一个页表 +
@@ -204,7 +204,7 @@ static void mem_pool_init(uint32_t all_mem){
     put_int(user_pool.pool_bitmap.bits);
     put_str("\n");
 
-    put_str("-------------------user_pool_phy_addr_start:");
+    put_str("------------------user_pool_phy_addr_start:");
     put_int(user_pool.phy_addr_start);
     put_str("\n");
 
@@ -219,15 +219,15 @@ static void mem_pool_init(uint32_t all_mem){
 
     kernel_vaddr.vaddr_start=K_HEAP_START;
     bitmap_init(&kernel_vaddr.vaddr_bitmap);
-    put_str("--------------------mem_pool_init done------------------------\n");
+    put_str("----------------------------mem_pool_init done---------------------\n");
 
 }
 
 //内存管理部分入口
 
 void mem_init(){
-    put_str("----------------------mem_init_start--------------------------\n");
+    put_str("----------------------------mem_init_start--------------------------\n");
     uint32_t mem_bytes_total=(*(uint32_t*)(0xb00));
     mem_pool_init(mem_bytes_total);
-    put_str("-----------------------mem_init_done--------------------------\n");
+    put_str("----------------------------mem_init_done---------------------------\n");
 }
