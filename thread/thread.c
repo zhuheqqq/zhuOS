@@ -32,7 +32,7 @@ void init_thread(struct task_struct* pthread,char* name,int prio){
     pthread->status=TASK_RUNNING;
     pthread->priority=prio;
 
-    //self_kstack是线程自己在内核态下使用的栈顶地址
+    //self_kstack是线程自己在内核态下(特权级0)使用的栈顶地址
     pthread->self_kstack=(uint32_t*)((uint32_t)pthread+PG_SIZE);
     pthread->stack_magic=0x19870916;//自定义魔数
 

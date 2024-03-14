@@ -24,8 +24,8 @@ struct list{
 //回调函数
 typedef bool(function)(struct list_elem*,int arg);
 
-void list_init(struct list*);
-void list_insert_before(struct list_elem* before,struct list_elem* elem);
+void list_init(struct list*);  //初始化队列
+void list_insert_before(struct list_elem* before,struct list_elem* elem);//在前面插入
 void list_push(struct list* plist,struct list_elem* elem);
 void list_iterate(struct list* plist);
 void list_append(struct list* plist,struct list_elem* elem);
