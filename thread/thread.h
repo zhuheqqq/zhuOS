@@ -1,6 +1,7 @@
 #ifndef __THREAD_THREAD_H
 #define __THREAD_THREAD_H
 #include "stdint.h"
+#include "list.h"
 
 typedef void thread_func(void*);
 
@@ -62,7 +63,22 @@ struct task_struct{
     enum task_status status;     
     uint8_t priority;           //线程优先级
     char name[16];              //记录线程的名字
+
+    uint8_t ticks;              //每次在处理器上执行的时间滴答数
+    //也就是我们所说的任务的时间片,每次时钟中断都会将当前任务的 ticks 减 1,当减到 0时就被换下处理器。
+
+    uint32_t elapsed_ticks;//任务执行了多久,从开始到结束总的时间
+
+    struct list_elem general_tag;//线程在一般队列中的结点
+
+    struct list_elem all_list_tag;
+
+    uint32_t* pgdir;        //进程自己页表的虚拟地址
+
+
     uint32_t stack_magic;       //栈的边界标记，用于检测栈的溢出
 };
+
+
 
 #endif
