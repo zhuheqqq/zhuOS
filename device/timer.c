@@ -19,6 +19,8 @@
 #define READ_WRITE_LATCH   3
 #define PIT_CONTROL_PORT   0x43
 
+uint32_t ticks;//自中断开启以来总共的滴答数
+
 /* 把操作的计数器counter_no、读写锁属性rwl、计数器模式counter_mode写入模式控制寄存器并赋予初始值counter_value */
 static void frequency_set(uint8_t counter_port, \
 			  uint8_t counter_no, \
@@ -39,4 +41,10 @@ void timer_init() {
    /* 设置8253的定时周期,也就是发中断的周期 */
    frequency_set(CONTRER0_PORT, COUNTER0_NO, READ_WRITE_LATCH, COUNTER_MODE, COUNTER0_VALUE);
    put_str("timer_init done\n");
+}
+
+static void intr_timer_handler(void){
+   struct task_struct* cur_thread=running_thread();//获取当前线程的pcb指针
+
+   ASSERT(cur_thread->stack_magic==0x19870916);
 }
