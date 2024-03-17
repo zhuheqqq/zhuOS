@@ -190,3 +190,8 @@ enum intr_status intr_get_status(){
     GET_EFLAGS(eflags);
     return (EFLAGS_IF&eflags)?INTR_ON:INTR_OFF;
 }
+
+void register_handler(uint8_t vector_no,intr_handler function){
+    //idt_table数组中的函数是在进入中断中根据中断向量号调用的
+    idt_table[vector_no]=function;
+}

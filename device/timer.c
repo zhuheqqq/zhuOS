@@ -9,6 +9,9 @@
 #include "timer.h"
 #include "../lib/kernel/io.h"
 #include "../lib/kernel/print.h"
+#include "../thread/thread.h"
+#include "../kernel/interrupt.h"
+#include "../kernel/debug.h"
 
 #define IRQ0_FREQUENCY	   100
 #define INPUT_FREQUENCY	   1193180
@@ -35,16 +38,27 @@ static void frequency_set(uint8_t counter_port, \
    outb(counter_port, (uint8_t)counter_value >> 8);
 }
 
+
+static void intr_timer_handler(void){
+   struct task_struct* cur_thread=running_thread();//获取当前线程的pcb指针
+
+   ASSERT(cur_thread->stack_magic==0x19870916);//检查栈是否溢出
+
+   cur_thread->elapsed_ticks++;//记录线程占用的cpu时间
+   ticks++;//从内核第一次处理时间中断开始至今的滴答数，内核态和用户态总共的滴答数
+
+   if(cur_thread->ticks==0){//如果时间片用完，就调度新的进程上cpu
+      schedule();
+   }else{
+      cur_thread->ticks--;//将当前时间片减1
+   }
+}
+
 /* 初始化PIT8253 */
 void timer_init() {
    put_str("timer_init start\n");
    /* 设置8253的定时周期,也就是发中断的周期 */
    frequency_set(CONTRER0_PORT, COUNTER0_NO, READ_WRITE_LATCH, COUNTER_MODE, COUNTER0_VALUE);
+   register_handler(0x20,intr_timer_handler);//注册时钟处理程序
    put_str("timer_init done\n");
-}
-
-static void intr_timer_handler(void){
-   struct task_struct* cur_thread=running_thread();//获取当前线程的pcb指针
-
-   ASSERT(cur_thread->stack_magic==0x19870916);
 }

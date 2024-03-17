@@ -3,6 +3,9 @@
 #include "string.h"
 #include "global.h"
 #include "memory.h"
+#include "interrupt.h"
+#include "list.h"
+#include "debug.h"
 
 #define PG_SIZE 4096
 
@@ -16,7 +19,7 @@ extern void switch_to(struct task_struct* cur,struct task_struct* next);
 //获取当前线程pcb指针
 struct task_struct* running_thread(){
     uint32_t esp;
-    asm("mov %%esp,%0":"=9"(esp));
+    asm("mov %%esp,%0":"=g"(esp));
 
     //取esp整数部分，即pcb起始地址
     return (struct task_struct*)(esp&0xfffff000);
@@ -100,4 +103,42 @@ static void make_main_thread(void){
     //main函数是当前线程，当前线程不在thread_read_list中，所以只将其加在thread_all_list
     ASSERT(!elem_find(&thread_all_list,&main_thread->all_list_tag));
     list_append(&thread_all_list,&main_thread->all_list_tag);
+}
+
+
+//实现任务调度,将当前线程换下处理器，并在就绪队列中找个可运行的程序换上
+void schedule(){
+    ASSERT(intr_get_status()==INTR_OFF);
+
+    struct task_struct* cur=running_thread();
+    if(cur->status==TASK_RUNNING){
+        //如果此线程是cpu时间片到了，将其加入就绪队列尾
+        ASSERT(!elem_find(&thread_ready_list,&cur->general_tag));
+        list_append(&thread_ready_list,&cur->general_tag);
+        cur->ticks=cur->priority;
+
+        cur->status=TASK_READY;
+    }else{
+
+    }
+
+    ASSERT(!list_empty(&thread_ready_list));
+    thread_tag=NULL;//清空thread_tag
+
+    //将thread_ready_list队列中的第一个就绪线程弹出，准备将其调度上cpu
+    thread_tag=list_pop(&thread_ready_list);
+    struct task_struct* next=elem2entry(struct task_struct,general_tag,thread_tag);
+    next->status=TASK_RUNNING;
+    switch_to(cur,next);
+}
+
+//初始化线程环境
+void thread_init(void){
+    put_str("thread_init start\n");
+    list_init(&thread_ready_list);
+    list_init(&thread_all_list);
+
+    //将当前main函数创建为线程
+    make_main_thread();
+    put_str("thread_init done\n");
 }
