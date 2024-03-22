@@ -2,6 +2,7 @@
 #include "init.h"
 //#include "debug.h"
 #include "../thread/thread.h"
+#include "../device/console.h"
 
 void k_thread_a(void*);
 void k_thread_b(void*);
@@ -17,7 +18,7 @@ int main(void){
 
 
     while(1){
-        put_str("Main\n");
+        console_put_str("Main\n");
     }
 
     return 0;
@@ -26,7 +27,7 @@ int main(void){
 void k_thread_a(void* arg){//void表示通用函数,被调用的函数知道自己需要什么类型的参数
     char* para=arg;
     while(1){
-        put_str(para);
+        console_put_str(para);
     }
 
 }
@@ -34,7 +35,7 @@ void k_thread_a(void* arg){//void表示通用函数,被调用的函数知道自�
 void k_thread_b(void* arg){//void表示通用函数,被调用的函数知道自己需要什么类型的参数
     char* para=arg;
     while(1){
-        put_str(para);
+        console_put_str(para);
     }
 
 }

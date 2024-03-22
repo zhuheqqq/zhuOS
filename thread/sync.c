@@ -5,6 +5,7 @@
 #include "debug.h"
 #include "global.h"
 
+
 void sema_init(struct semaphore* psema,uint8_t value){
     psema->value=value;//为信号量赋初值
     list_init(&psema->waiters);//初始化信号量的等待队列
@@ -55,7 +56,7 @@ void sema_up(struct semaphore* psema){
         thread_unblock(thread_blocked);
     }
 
-    psema->value++;
+    ++psema->value;
     ASSERT(psema->value==1);
 
     //恢复之前的中断状态
@@ -71,7 +72,7 @@ void lock_acquire(struct lock* plock){
         ASSERT(plock->holder_repeat_nr==0);
         plock->holder_repeat_nr=1;
     }else{
-        plock->holder_repeat_nr++;
+        ++plock->holder_repeat_nr;
     }
 }
 
@@ -79,7 +80,7 @@ void lock_acquire(struct lock* plock){
 void lock_release(struct lock* plock){
     ASSERT(plock->holder==running_thread());
     if(plock->holder_repeat_nr>1){
-        plock->holder_repeat_nr--;
+        --plock->holder_repeat_nr;
         return;
     }
 
