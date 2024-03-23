@@ -219,7 +219,7 @@ LOAD build/console.o
 .plt.sec
  *(.plt.sec)
 
-.text           0xc0001500     0x28d7
+.text           0xc0001500     0x28e0
  *(.text.unlikely .text.*_unlikely .text.unlikely.*)
  *(.text.exit .text.exit.*)
  *(.text.startup .text.startup.*)
@@ -306,20 +306,20 @@ LOAD build/console.o
  *fill*         0xc00038f9        0x7 
  .text          0xc0003900       0x15 build/switch.o
                 0xc0003900                switch_to
- .text          0xc0003915      0x386 build/sync.o
+ .text          0xc0003915      0x38f build/sync.o
                 0xc0003915                sema_init
                 0xc000394f                lock_init
                 0xc0003989                sema_down
                 0xc0003aa5                sema_up
                 0xc0003b6f                lock_acquire
                 0xc0003bf5                lock_release
- .text          0xc0003c9b      0x13c build/console.o
-                0xc0003c9b                console_init
-                0xc0003ce9                console_acquire
-                0xc0003d14                console_release
-                0xc0003d3f                console_put_str
-                0xc0003d6f                console_put_char
-                0xc0003da7                console_put_int
+ .text          0xc0003ca4      0x13c build/console.o
+                0xc0003ca4                console_init
+                0xc0003cf2                console_acquire
+                0xc0003d1d                console_release
+                0xc0003d48                console_put_str
+                0xc0003d78                console_put_char
+                0xc0003db0                console_put_int
  *(.gnu.warning)
 
 .fini
@@ -330,7 +330,7 @@ LOAD build/console.o
                 0xc0004000                        . = ALIGN (CONSTANT (MAXPAGESIZE))
                 0xc0004000                        . = SEGMENT_START ("rodata-segment", (ALIGN (CONSTANT (MAXPAGESIZE)) + (. & (CONSTANT (MAXPAGESIZE) - 0x1))))
 
-.rodata         0xc0004000      0xb7c
+.rodata         0xc0004000      0xb84
  *(.rodata .rodata.* .gnu.linkonce.r.*)
  .rodata        0xc0004000       0x37 build/main.o
  .rodata        0xc0004037        0xa build/init.o
@@ -347,8 +347,8 @@ LOAD build/console.o
  .rodata        0xc00046a4       0xe0 build/string.o
  .rodata        0xc0004784      0x2a7 build/thread.o
  *fill*         0xc0004a2b        0x1 
- .rodata        0xc0004a2c      0x129 build/sync.o
- .rodata        0xc0004b55       0x27 build/console.o
+ .rodata        0xc0004a2c      0x131 build/sync.o
+ .rodata        0xc0004b5d       0x27 build/console.o
 
 .rodata1
  *(.rodata1)
@@ -357,30 +357,30 @@ LOAD build/console.o
  *(.eh_frame_hdr)
  *(.eh_frame_entry .eh_frame_entry.*)
 
-.eh_frame       0xc0004b7c      0xaa8
+.eh_frame       0xc0004b84      0xaa8
  *(.eh_frame)
- .eh_frame      0xc0004b7c       0x8c build/main.o
- .eh_frame      0xc0004c08       0x24 build/init.o
+ .eh_frame      0xc0004b84       0x8c build/main.o
+ .eh_frame      0xc0004c10       0x24 build/init.o
                                  0x50 (松开之前的大小)
- .eh_frame      0xc0004c2c      0x1a4 build/interrupt.o
+ .eh_frame      0xc0004c34      0x1a4 build/interrupt.o
                                 0x1d0 (松开之前的大小)
- .eh_frame      0xc0004dd0       0x94 build/timer.o
+ .eh_frame      0xc0004dd8       0x94 build/timer.o
                                  0xd4 (松开之前的大小)
- .eh_frame      0xc0004e64       0x1c build/debug.o
+ .eh_frame      0xc0004e6c       0x1c build/debug.o
                                  0x48 (松开之前的大小)
- .eh_frame      0xc0004e80       0x90 build/bitmap.o
+ .eh_frame      0xc0004e88       0x90 build/bitmap.o
                                  0xbc (松开之前的大小)
- .eh_frame      0xc0004f10      0x13c build/memory.o
+ .eh_frame      0xc0004f18      0x13c build/memory.o
                                 0x17c (松开之前的大小)
- .eh_frame      0xc000504c      0x168 build/string.o
+ .eh_frame      0xc0005054      0x168 build/string.o
                                 0x194 (松开之前的大小)
- .eh_frame      0xc00051b4      0x174 build/thread.o
+ .eh_frame      0xc00051bc      0x174 build/thread.o
                                 0x1b4 (松开之前的大小)
- .eh_frame      0xc0005328      0x148 build/list.o
+ .eh_frame      0xc0005330      0x148 build/list.o
                                 0x188 (松开之前的大小)
- .eh_frame      0xc0005470       0xdc build/sync.o
+ .eh_frame      0xc0005478       0xdc build/sync.o
                                 0x11c (松开之前的大小)
- .eh_frame      0xc000554c       0xd8 build/console.o
+ .eh_frame      0xc0005554       0xd8 build/console.o
                                 0x118 (松开之前的大小)
  *(.eh_frame.*)
 
@@ -600,28 +600,28 @@ LOAD build/console.o
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x1248
+.debug_info     0x00000000     0x124c
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x00000000      0x291 build/main.o
- .debug_info    0x00000291       0xd4 build/init.o
- .debug_info    0x00000365      0x6e4 build/thread.o
- .debug_info    0x00000a49      0x4ac build/sync.o
- .debug_info    0x00000ef5      0x353 build/console.o
+ .debug_info    0x00000000      0x295 build/main.o
+ .debug_info    0x00000295       0xd4 build/init.o
+ .debug_info    0x00000369      0x6e4 build/thread.o
+ .debug_info    0x00000a4d      0x4ac build/sync.o
+ .debug_info    0x00000ef9      0x353 build/console.o
 
-.debug_abbrev   0x00000000      0x715
+.debug_abbrev   0x00000000      0x700
  *(.debug_abbrev)
- .debug_abbrev  0x00000000      0x178 build/main.o
- .debug_abbrev  0x00000178       0xbc build/init.o
- .debug_abbrev  0x00000234      0x21c build/thread.o
- .debug_abbrev  0x00000450      0x15a build/sync.o
- .debug_abbrev  0x000005aa      0x16b build/console.o
+ .debug_abbrev  0x00000000      0x163 build/main.o
+ .debug_abbrev  0x00000163       0xbc build/init.o
+ .debug_abbrev  0x0000021f      0x21c build/thread.o
+ .debug_abbrev  0x0000043b      0x15a build/sync.o
+ .debug_abbrev  0x00000595      0x16b build/console.o
 
 .debug_line     0x00000000      0x5aa
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x00000000       0xac build/main.o
- .debug_line    0x000000ac       0x7d build/init.o
- .debug_line    0x00000129      0x231 build/thread.o
- .debug_line    0x0000035a      0x19f build/sync.o
+ .debug_line    0x00000000       0xb1 build/main.o
+ .debug_line    0x000000b1       0x7d build/init.o
+ .debug_line    0x0000012e      0x231 build/thread.o
+ .debug_line    0x0000035f      0x19a build/sync.o
  .debug_line    0x000004f9       0xb1 build/console.o
 
 .debug_frame
@@ -630,7 +630,7 @@ LOAD build/console.o
 .debug_str      0x00000000      0x4bf
  *(.debug_str)
  .debug_str     0x00000000      0x4bf build/main.o
-                                0x219 (松开之前的大小)
+                                0x236 (松开之前的大小)
  .debug_str     0x000004bf      0x114 build/init.o
  .debug_str     0x000004bf      0x3d1 build/thread.o
  .debug_str     0x000004bf      0x30a build/sync.o
@@ -668,7 +668,7 @@ LOAD build/console.o
  *(.debug_line_str)
  .debug_line_str
                 0x00000000      0x123 build/main.o
-                                 0xd1 (松开之前的大小)
+                                 0xdd (松开之前的大小)
  .debug_line_str
                 0x00000123       0xb5 build/init.o
  .debug_line_str

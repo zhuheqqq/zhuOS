@@ -3,6 +3,7 @@
 //#include "debug.h"
 #include "../thread/thread.h"
 #include "../device/console.h"
+#include "interrupt.h"
 
 void k_thread_a(void*);
 void k_thread_b(void*);
