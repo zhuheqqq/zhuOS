@@ -19,8 +19,8 @@ int main(void){
 
 
     while(1){
-        console_put_str("Main\n");
-    }
+        console_put_str("Main ");
+    };
 
     return 0;
 }

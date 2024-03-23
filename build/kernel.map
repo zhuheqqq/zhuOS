@@ -584,57 +584,26 @@ LOAD build/console.o
 .debug_sfnames
  *(.debug_sfnames)
 
-.debug_aranges  0x00000000       0xa0
+.debug_aranges
  *(.debug_aranges)
- .debug_aranges
-                0x00000000       0x20 build/main.o
- .debug_aranges
-                0x00000020       0x20 build/init.o
- .debug_aranges
-                0x00000040       0x20 build/thread.o
- .debug_aranges
-                0x00000060       0x20 build/sync.o
- .debug_aranges
-                0x00000080       0x20 build/console.o
 
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x124c
+.debug_info
  *(.debug_info .gnu.linkonce.wi.*)
- .debug_info    0x00000000      0x295 build/main.o
- .debug_info    0x00000295       0xd4 build/init.o
- .debug_info    0x00000369      0x6e4 build/thread.o
- .debug_info    0x00000a4d      0x4ac build/sync.o
- .debug_info    0x00000ef9      0x353 build/console.o
 
-.debug_abbrev   0x00000000      0x700
+.debug_abbrev
  *(.debug_abbrev)
- .debug_abbrev  0x00000000      0x163 build/main.o
- .debug_abbrev  0x00000163       0xbc build/init.o
- .debug_abbrev  0x0000021f      0x21c build/thread.o
- .debug_abbrev  0x0000043b      0x15a build/sync.o
- .debug_abbrev  0x00000595      0x16b build/console.o
 
-.debug_line     0x00000000      0x5aa
+.debug_line
  *(.debug_line .debug_line.* .debug_line_end)
- .debug_line    0x00000000       0xb1 build/main.o
- .debug_line    0x000000b1       0x7d build/init.o
- .debug_line    0x0000012e      0x231 build/thread.o
- .debug_line    0x0000035f      0x19a build/sync.o
- .debug_line    0x000004f9       0xb1 build/console.o
 
 .debug_frame
  *(.debug_frame)
 
-.debug_str      0x00000000      0x4bf
+.debug_str
  *(.debug_str)
- .debug_str     0x00000000      0x4bf build/main.o
-                                0x236 (松开之前的大小)
- .debug_str     0x000004bf      0x114 build/init.o
- .debug_str     0x000004bf      0x3d1 build/thread.o
- .debug_str     0x000004bf      0x30a build/sync.o
- .debug_str     0x000004bf      0x2a9 build/console.o
 
 .debug_loc
  *(.debug_loc)
@@ -664,19 +633,7 @@ LOAD build/console.o
  *(.debug_addr)
 
 .debug_line_str
-                0x00000000      0x123
  *(.debug_line_str)
- .debug_line_str
-                0x00000000      0x123 build/main.o
-                                 0xdd (松开之前的大小)
- .debug_line_str
-                0x00000123       0xb5 build/init.o
- .debug_line_str
-                0x00000123       0xab build/thread.o
- .debug_line_str
-                0x00000123       0xa3 build/sync.o
- .debug_line_str
-                0x00000123       0xac build/console.o
 
 .debug_loclists
  *(.debug_loclists)

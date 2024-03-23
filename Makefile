@@ -4,7 +4,7 @@ ENTRY_POINT = 0xc0001500
 AS = nasm
 CC = gcc
 LD = ld
-LIB = -I lib/ -I lib/kernel/ -I lib/user/ -I kernel/ -I device/
+LIB = -I lib/ -I lib/kernel/ -I lib/user/ -I kernel/ -I device/ -I thread/
 ASFLAGS = -f elf 
 ASBINLIB = -I boot/include/
 CFLAGS = -m32 -Wall $(LIB) -c -g -fno-builtin -W -Wstrict-prototypes \
@@ -103,9 +103,17 @@ hd:
            of=/home/zhuheqin/Desktop/bochs/hd60M.img \
            bs=512 count=200 seek=9 conv=notrunc
 
+hd-gdb:
+	dd if=$(BUILD_DIR)/mbr.bin of=/home/zhuheqin/Desktop/bochs-2.8-debug/hd60M.img bs=512 count=1  conv=notrunc
+	dd if=$(BUILD_DIR)/loader.bin of=/home/zhuheqin/Desktop/bochs-2.8-debug/hd60M.img bs=512 count=4 seek=2 conv=notrunc
+	dd if=$(BUILD_DIR)/kernel.bin \
+           of=/home/zhuheqin/Desktop/bochs-2.8-debug/hd60M.img \
+           bs=512 count=200 seek=9 conv=notrunc
+
 clean:
 	cd $(BUILD_DIR) && rm -f ./* && rm ../$(DISK_IMG)
 
 build: $(BUILD_DIR)/kernel.bin $(BUILD_DIR)/mbr.bin $(BUILD_DIR)/loader.bin
 
 all: build hd
+all-gdb: build hd-gdb

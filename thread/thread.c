@@ -6,6 +6,7 @@
 #include "interrupt.h"
 #include "list.h"
 #include "debug.h"
+#include "print.h"
 
 #define PG_SIZE 4096
 
@@ -19,7 +20,7 @@ extern void switch_to(struct task_struct* cur,struct task_struct* next);
 //获取当前线程pcb指针
 struct task_struct* running_thread(){
     uint32_t esp;
-    asm("mov %%esp,%0":"=g"(esp));
+    asm("mov %%esp, %0":"=g"(esp));
 
     //取esp整数部分，即pcb起始地址
     return (struct task_struct*)(esp&0xfffff000);
@@ -42,8 +43,7 @@ void thread_create(struct task_struct* pthread,thread_func function,void* func_a
     kthread_stack->eip=kernel_thread;
     kthread_stack->function=function;
     kthread_stack->func_arg=func_arg;
-    kthread_stack->ebp=kthread_stack->ebx=\
-    kthread_stack->esi=kthread_stack->edi=0;
+    kthread_stack->ebp=kthread_stack->ebx=kthread_stack->esi=kthread_stack->edi=0;
 }
 
 //初始化线程基本信息
@@ -98,7 +98,7 @@ static void make_main_thread(void){
  * 就是为其预留 pcb 的,因此 pcb 地址为 0xc009e000,
 * 不需要通过 get_kernel_page 另分配一页*/
     main_thread=running_thread();
-    init_thread(main_thread,"main",31);
+    init_thread(main_thread,"main",32);
 
     //main函数是当前线程，当前线程不在thread_read_list中，所以只将其加在thread_all_list
     ASSERT(!elem_find(&thread_all_list,&main_thread->all_list_tag));
