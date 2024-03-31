@@ -35,7 +35,10 @@ static void frequency_set(uint8_t counter_port, \
 /* 先写入counter_value的低8位 */
    outb(counter_port, (uint8_t)counter_value);
 /* 再写入counter_value的高8位 */
-   outb(counter_port, (uint8_t)counter_value >> 8);
+//直接右移会导致时钟频率过高出现GP异常
+   //outb(counter_port, (uint8_t)counter_value >> 8);
+
+   outb(counter_port, (uint8_t) (counter_value>>8) );
 }
 
 

@@ -4,6 +4,7 @@
 #include "list.h"
 #include "debug.h"
 #include "global.h"
+#include "print.h"
 
 void sema_init(struct semaphore *psema, uint8_t value)
 {
@@ -22,6 +23,7 @@ void lock_init(struct lock *plock)
 // 信号量down操作
 void sema_down(struct semaphore *psema)
 {
+   
     // 关中断来保证原子操作
     enum intr_status old_status = intr_disable();
 
@@ -45,13 +47,16 @@ void sema_down(struct semaphore *psema)
     ASSERT(psema->value == 0);
     // 恢复之前的中断状态
     intr_set_status(old_status);
+
+    
 }
 
 // 信号量的up操作
 void sema_up(struct semaphore *psema)
 {
+    
     enum intr_status old_status = intr_disable(); // 关中断
-    //put_int(psema->value);
+    
     ASSERT(psema->value == 0);
     if (!list_empty(&psema->waiters))
     {
@@ -65,11 +70,14 @@ void sema_up(struct semaphore *psema)
 
     // 恢复之前的中断状态
     intr_set_status(old_status);
+
+    
 }
 
 // 获取锁plock
 void lock_acquire(struct lock *plock)
 {
+   
     // 排除曾经自己已经持有锁但还未将其释放的情况
     if (plock->holder != running_thread())
     {
@@ -82,11 +90,13 @@ void lock_acquire(struct lock *plock)
     {
         plock->holder_repeat_nr++;
     }
+  
 }
 
 // 释放锁
 void lock_release(struct lock *plock)
 {
+    
     ASSERT(plock->holder == running_thread());
     if (plock->holder_repeat_nr > 1)
     {
@@ -96,7 +106,10 @@ void lock_release(struct lock *plock)
 
     ASSERT(plock->holder_repeat_nr == 1);
 
+    
     plock->holder = NULL; // 把锁的持有者置空放在v操作之前
     plock->holder_repeat_nr = 0;
     sema_up(&plock->semaphore); // 信号量的v操作
+
+   
 }

@@ -109,11 +109,19 @@ hd-gdb:
 	dd if=$(BUILD_DIR)/kernel.bin \
            of=/home/zhuheqin/Desktop/bochs-2.8-debug/hd60M.img \
            bs=512 count=200 seek=9 conv=notrunc
+	rm -f /home/zhuheqin/Desktop/bochs-2.8-debug/hd60M.img.lock
 
 clean:
-	cd $(BUILD_DIR) && rm -f ./* && rm ../$(DISK_IMG)
+	cd $(BUILD_DIR) && rm -f ./* 
+	rm -f /home/zhuheqin/Desktop/bochs/hd60M.img.lock
+	rm -f /home/zhuheqin/Desktop/bochs-2.8-debug/hd60M.img.lock
 
 build: $(BUILD_DIR)/kernel.bin $(BUILD_DIR)/mbr.bin $(BUILD_DIR)/loader.bin
 
-all: build hd
-all-gdb: build hd-gdb
+debug:
+	rm -f /home/zhuheqin/Desktop/bochs/hd60M.img.lock
+	rm -f /home/zhuheqin/Desktop/bochs-2.8-debug/hd60M.img.lock
+	~/Desktop/bochs-2.8-debug/bin/bochs  -f ~/Desktop/bochs-2.8-debug/bochsrc.disk
+
+all:  build hd clean
+all-gdb:  build hd-gdb debug
