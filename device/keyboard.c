@@ -110,7 +110,7 @@ static void intr_keyboard_handler(void) {
    //这次中断前的上一次中断，以下任意三个键是否有按下
    bool ctrl_down_last=ctrl_status;
    bool shift_down_last=shift_status;
-   bool caps_lock_last=caps_lock_last;
+   bool caps_lock_last=caps_lock_status;
 
    bool break_code;
    uint16_t scancode=inb(KBD_BUF_PORT);
@@ -159,8 +159,6 @@ static void intr_keyboard_handler(void) {
                     shift = true;//如果同时按下了shift键
                 }
             }else{//默认为字母键
-            put_int(shift_down_last);
-            put_int(caps_lock_last);
                 if(shift_down_last && caps_lock_last){//如果shift和capslock同时按下
                     shift = false;
                 }else if(shift_down_last||caps_lock_last){
