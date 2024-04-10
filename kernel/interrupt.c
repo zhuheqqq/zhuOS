@@ -58,8 +58,8 @@ static void pic_init(void){
     //outb(PIC_M_DATA,0xfe);
     //outb(PIC_S_DATA,0xff);
 
-    //测试键盘，只打开键盘中断
-    outb(PIC_M_DATA,0xfd);
+    //测试键盘，只打开时钟和键盘中断
+    outb(PIC_M_DATA,0xfc);
     outb(PIC_S_DATA,0xff);
 
     put_str("pic_init done\n");

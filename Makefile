@@ -27,7 +27,7 @@ $(BUILD_DIR)/loader.bin: boot/loader.S
 
 ##############     c代码编译     ###############
 $(BUILD_DIR)/main.o: kernel/main.c lib/kernel/print.h \
-        lib/stdint.h kernel/init.h thread/thread.h device/console.h
+        lib/stdint.h kernel/init.h thread/thread.h device/console.h device/keyboard.h device/ioqueue.h 
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/init.o: kernel/init.c kernel/init.h lib/kernel/print.h \
