@@ -16,4 +16,5 @@ void init_all(){
     thread_init();//初始化线程相关结构
     console_init();//终端初始化
     keyboard_init();//键盘初始化
+    tss_init();//tss初始化
 }
