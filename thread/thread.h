@@ -2,6 +2,8 @@
 #define __THREAD_THREAD_H
 #include "stdint.h"
 #include "list.h"
+#include "bitmap.h"
+#include "memory.h"
 
 typedef void thread_func(void*);
 
@@ -77,6 +79,8 @@ struct task_struct{
 
 
     uint32_t stack_magic;       //栈的边界标记，用于检测栈的溢出
+
+    struct virtual_addr userprog_vaddr; //用户进程的虚拟地址
 };
 
 void thread_create(struct task_struct* pthread, thread_func function, void* func_arg);
