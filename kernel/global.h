@@ -97,4 +97,18 @@ struct gdt_desc {
 
 #define PG_SIZE 4096
 
+#define EFLAGS_MBS (1 << 1) //此项必须要设置
+#define EFLAGS_IF_1 (1 << 9)    //IF为1开中断
+#define EFLAGS_IF_0 0
+#define EFLAGS_IOPL_3   (3 << 12)   //测试用户程序在非系统调用下进行IO
+
+#define EFLAGS_IOPL_0 (0 << 12) //IOPL
+
+#define NULL ((void*)0)
+#define DIV_ROUND_UP(X, STEP)((X + STEP - 1) / (STEP))
+#define bool int
+#define true 1
+#define false 0
+
+
 #endif

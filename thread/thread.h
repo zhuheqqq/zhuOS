@@ -23,7 +23,7 @@ struct intr_stack{
     uint32_t vec_no;        //kernel.S 宏 VECTOR 中 push %1 压入的中断号
     uint32_t edi;
     uint32_t esi;
-    uint32_t edp;
+    uint32_t ebp;
     uint32_t esp_dummy;
 
     uint32_t ebx;
@@ -82,6 +82,9 @@ struct task_struct{
 
     struct virtual_addr userprog_vaddr; //用户进程的虚拟地址
 };
+
+extern struct list thread_ready_list;
+extern struct list thread_all_list;
 
 void thread_create(struct task_struct* pthread, thread_func function, void* func_arg);
 void init_thread(struct task_struct* pthread, char* name, int prio);
