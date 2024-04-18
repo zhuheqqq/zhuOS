@@ -6,6 +6,7 @@
 #include "../thread/thread.h"
 #include "console.h"
 #include "keyboard.h"
+#include "../userprog/tss.h"
 
 //初始化所有模块
 void init_all(){

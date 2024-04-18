@@ -151,6 +151,9 @@ void idt_init(){
     exception_init();
     pic_init();     //初始化8259A
 
+    uint64_t a = 0;
+    asm volatile("lidt %0" : : "m"(a));
+
     //加载idt
     uint64_t idt_operand=((sizeof(idt)-1)|((uint64_t)((uint32_t)idt<<16)));
     asm volatile("lidt %0" : :"m"(idt_operand));

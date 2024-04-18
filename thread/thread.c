@@ -7,7 +7,7 @@
 #include "list.h"
 #include "debug.h"
 #include "print.h"
-#include "process.h"
+#include "../userprog/process.h"
 
 #define PG_SIZE 4096
 
@@ -133,7 +133,7 @@ void schedule(){
 
     //激活任务页表等
     process_activate(next);
-    
+
     switch_to(cur,next);
 }
 
