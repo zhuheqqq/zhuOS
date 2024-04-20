@@ -114,8 +114,8 @@ $(BUILD_DIR)/kernel.bin: $(OBJS)
 
 .PHONY : mk_dir hd clean all
 
-mk_dir:
-	if [ ! -d $(BUILD_DIR) ];then mkdir $(BUILD_DIR);fi
+#mk_dir:
+#if [ ! -d $(BUILD_DIR) ];then mkdir $(BUILD_DIR);fi
 
 #mk_img:
 #if [ ! -e $(DISK_IMG) ];then /usr/bin/bximage -hd -mode="flat" -size=3 -q $(DISK_IMG);fi
@@ -147,5 +147,5 @@ debug:
 	rm -f /home/zhuheqin/Desktop/bochs-2.8-debug/hd60M.img.lock
 	~/Desktop/bochs-2.8-debug/bin/bochs  -f ~/Desktop/bochs-2.8-debug/bochsrc.disk
 
-all:  mk_dir build hd clean
+all: 	build hd clean
 all-gdb:  build hd-gdb debug
