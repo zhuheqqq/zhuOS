@@ -103,7 +103,7 @@ static char keymap[][2] = {
 /* 0x37 */	{'*',	'*'},    	
 /* 0x38 */	{alt_l_char, alt_l_char},
 /* 0x39 */	{' ',	' '},		
-/* 0x3A */	{caps_lock_char, caps_lock_char}
+/* 0x3A */	{caps_lock_char, caps_lock_char},
 /*其它按键暂不处理*/
 };
 

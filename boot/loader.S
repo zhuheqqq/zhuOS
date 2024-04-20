@@ -19,9 +19,9 @@ VIDEO_DESC: dd 0x80000007   ;limit=(0xbffff-0xb8000)/4k=0x7
 GDT_SIZE equ $-GDT_BASE
 GDT_LIMIT equ GDT_SIZE-1
 
-;与书中不同，因为我们的gdt_base=0xc0000903，所以下面为
-times 59 dq 0
-times 5 db 0              
+
+times 60 dq 0
+             
 
 
 SELECTOR_CODE equ (0x0001<<3)+TI_GDT+RPL0           ;相当于(CODE_DESC-GDT_BASE)/8+TI_GDT+RPL0

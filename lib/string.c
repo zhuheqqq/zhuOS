@@ -52,19 +52,19 @@ uint32_t strlen(const char* str){
 }
 
 int8_t strcmp(const char* a,const char* b){
-    ASSERT(a!=NULL&b!=NULL);
-    while(*a!=0&&*a==*b){
+    ASSERT(a != NULL && b != NULL);
+    while(*a != 0 && *a == *b){
         a++;
         b++;
     }
-    return *a<*b?-1:*a>*b;
+    return *a < *b ? -1 : *a > *b;
 }
 
 //从左往右查找字符串str首次出现字符ch的地址
 char* strchr(const char* str,const uint8_t ch){
-    ASSERT(str!=NULL);
-    while(*str!=0){
-        if(*str==ch){
+    ASSERT(str != NULL);
+    while(*str != 0){
+        if(*str == ch){
             return (char*)str;
         }
         str++;

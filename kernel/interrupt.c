@@ -144,61 +144,65 @@ static void exception_init(void){
     intr_name[19] = "#XF SIMD Floating-Point Exception";
 }
 
-//完成中断所有初始化工作
-void idt_init(){
-    put_str("idt_init start\n");
-    idt_desc_init();//初始化中断描述符表
-    exception_init();
-    pic_init();     //初始化8259A
-
-    uint64_t a = 0;
-    asm volatile("lidt %0" : : "m"(a));
-
-    //加载idt
-    uint64_t idt_operand=((sizeof(idt)-1)|((uint64_t)((uint32_t)idt<<16)));
-    asm volatile("lidt %0" : :"m"(idt_operand));
-    put_str("idt_init done\n");
+/* 获取当前中断状态 */
+enum intr_status intr_get_status() {
+   uint32_t eflags = 0; 
+   GET_EFLAGS(eflags);
+   return (EFLAGS_IF & eflags) ? INTR_ON : INTR_OFF;
 }
 
-//开中断并返回中断前的状态
-enum intr_status intr_enable(){
-    enum intr_status old_status;
-    if(INTR_ON==intr_get_status()){
-        old_status=INTR_ON;
-        return old_status;
-    }else{
-        old_status=INTR_OFF;
-        asm volatile("sti");//开中断 将IF位置1
-        return old_status;
-    }
+
+/* 开中断并返回开中断前的状态*/
+enum intr_status intr_enable() {
+   enum intr_status old_status;
+   if (INTR_ON == intr_get_status()) {
+      old_status = INTR_ON;
+      return old_status;
+   } else {
+      old_status = INTR_OFF;
+      asm volatile("sti");	 // 开中断,sti指令将IF位置1
+      return old_status;
+   }
 }
 
-//关中断，并且返回关中断前的状态
-enum intr_status intr_disable(){
-    enum intr_status old_status;
-    if(INTR_ON==intr_get_status()){
-        old_status=INTR_ON;
-        asm volatile("cli":::"memory");
-        return old_status;
-    }else{
-        old_status=INTR_OFF;
-        return old_status;
-    }
+/* 关中断,并且返回关中断前的状态 */
+enum intr_status intr_disable() {     
+   enum intr_status old_status;
+   if (INTR_ON == intr_get_status()) {
+      old_status = INTR_ON;
+      asm volatile("cli" : : : "memory"); // 关中断,cli指令将IF位置0
+                                          //cli指令不会直接影响内存。然而，从一个更大的上下文来看，禁用中断可能会影响系统状态，
+                                          //这个状态可能会被存储在内存中。所以改变位填 "memory" 是为了安全起见，确保编译器在生成代码时考虑到这一点。
+      return old_status;
+   } else {
+      old_status = INTR_OFF;
+      return old_status;
+   }
 }
 
-//将中断状态设置为status
-enum intr_status intr_set_status(enum intr_status status){
-    return status&INTR_ON?intr_enable():intr_disable();
+/* 将中断状态设置为status */
+enum intr_status intr_set_status(enum intr_status status) {
+   return status & INTR_ON ? intr_enable() : intr_disable();   //enable与disable函数会返回旧中断状态
 }
 
-//获取中断当前状态
-enum intr_status intr_get_status(){
-    uint32_t eflags=0;
-    GET_EFLAGS(eflags);
-    return (EFLAGS_IF&eflags)?INTR_ON:INTR_OFF;
+/* 在中断处理程序数组第vector_no个元素中注册安装中断处理程序function */
+void register_handler(uint8_t vector_no, intr_handler function) {
+/* idt_table数组中的函数是在进入中断后根据中断向量号调用的,
+ * 见kernel/kernel.S的call [idt_table + %1*4] */
+   idt_table[vector_no] = function; 
 }
 
-void register_handler(uint8_t vector_no,intr_handler function){
-    //idt_table数组中的函数是在进入中断中根据中断向量号调用的
-    idt_table[vector_no]=function;
+
+
+/*完成有关中断的所有初始化工作*/
+void idt_init() {
+   put_str("idt_init start\n");
+   idt_desc_init();	   //调用上面写好的函数完成中段描述符表的构建
+   exception_init();	   // 异常名初始化并注册通常的中断处理函数
+   pic_init();		  //设定化中断控制器，只接受来自时钟中断的信号
+
+   /* 加载idt */
+   uint64_t idt_operand = ((sizeof(idt) - 1) | ((uint64_t)(uint32_t)idt << 16));    //定义要加载到IDTR寄存器中的值
+   asm volatile("lidt %0" : : "m" (idt_operand));
+   put_str("idt_init done\n");
 }
