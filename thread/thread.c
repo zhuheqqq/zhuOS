@@ -8,6 +8,8 @@
 #include "debug.h"
 #include "print.h"
 #include "../userprog/process.h"
+#include "sync.h"
+
 
 #define PG_SIZE 4096
 

@@ -6,7 +6,7 @@
     asm volatile (  \
         "int $0x80" \
         : "=a" (retval) \
-        : "=a" (NUMBER) \
+        : "a" (NUMBER) \
         : "memory"  \
     );  \
     retval; \
