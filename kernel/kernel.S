@@ -107,7 +107,7 @@ VECTOR 0x2f,ZERO        ;保留
 [bits 32]
 extern syscall_table
 section .text
-global syacall_handler
+global syscall_handler
 syscall_handler:
 ;1 保存上下文环境
     push 0  ;使栈中格式统一
