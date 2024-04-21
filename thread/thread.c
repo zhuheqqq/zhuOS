@@ -7,7 +7,7 @@
 #include "list.h"
 #include "debug.h"
 #include "print.h"
-#include "../userprog/process.h"
+#include "process.h"
 #include "sync.h"
 
 
