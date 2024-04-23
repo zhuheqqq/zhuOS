@@ -108,6 +108,7 @@ void process_execute(void* filename, char* name){
     create_user_vaddr_bitmap(thread);
     thread_create(thread, start_process, filename);
     thread->pgdir = create_page_dir();
+    block_desc_init(thread->u_block_desc);//完成用户内存块描述符数组的初始化
 
     enum intr_status old_status = intr_disable();
     ASSERT(!elem_find(&thread_ready_list,&thread->general_tag));

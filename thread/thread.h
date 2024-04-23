@@ -86,6 +86,8 @@ struct task_struct{
     uint32_t stack_magic;       //栈的边界标记，用于检测栈的溢出
 
     struct virtual_addr userprog_vaddr; //用户进程的虚拟地址
+
+    struct mem_block_desc u_block_desc[DESC_CNT]; //用户进程内存块描述符
 };
 
 extern struct list thread_ready_list;

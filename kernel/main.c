@@ -29,8 +29,8 @@ int main(void){
     console_put_str("main_pid:0x");
     console_put_int(sys_getpid());
     console_put_char('\n');
-    thread_start("k_thread_a",32,k_thread_a,"argA ");
-    thread_start("k_thread_b",32,k_thread_b,"argB ");
+    thread_start("k_thread_a",32,k_thread_a,"argA  ");
+    thread_start("k_thread_b",32,k_thread_b,"argB  ");
 
 
     while(1);//{
@@ -42,8 +42,9 @@ int main(void){
 
 void k_thread_a(void* arg){//void表示通用函数,被调用的函数知道自己需要什么类型的参数
     char* para=arg;
-    console_put_str("thread_a_pid:0x");
-    console_put_int(sys_getpid());
+    void* addr = sys_malloc(33);
+    console_put_str(" I am thread_a, sys_malloc(33), addr is 0x");
+    console_put_int((int)addr);
     console_put_char('\n');
     // console_put_str("prog_a_pid:0x");
     // console_put_int(prog_a_pid);
@@ -54,8 +55,9 @@ void k_thread_a(void* arg){//void表示通用函数,被调用的函数知道自�
 
 void k_thread_b(void* arg){//void表示通用函数,被调用的函数知道自己需要什么类型的参数
     char* para=arg;
-    console_put_str("thread_b_pid:0x");
-    console_put_int(sys_getpid());
+    void* addr = sys_malloc(63);
+    console_put_str(" I am thread_b, sys_malloc(63), addr is 0x");
+    console_put_int((int)addr);
     console_put_char('\n');
     // console_put_str("prog_b_pid:0x");
     // console_put_int(prog_b_pid);
