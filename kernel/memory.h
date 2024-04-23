@@ -2,11 +2,25 @@
 #define __KERNEL_MEMORY_H
 #include "stdint.h"
 #include "bitmap.h"
+#include "list.h"
 
 //虚拟地址池，用于虚拟地址管理
 struct virtual_addr{
     struct bitmap vaddr_bitmap;//虚拟地址用到的位图结构
     uint32_t vaddr_start;//虚拟地址起始地址
+};
+
+
+//内存块描述符
+struct mem_block_desc {
+    uint32_t block_size;//内存块大小
+    uint32_t blocks_per_arena;//本arena中可容纳的mem_block的数量
+    struct list free_list;  //目前可用的mem_block链表
+};
+
+//内存块
+struct mem_block {
+    struct list_elem free_elem;
 };
 
 //内存池标记
@@ -21,6 +35,8 @@ enum pool_flags{
 #define PG_RW_W 2       //R/W属性位值，读/写/执行
 #define PG_US_S 0       //U/S属性位值，系统级
 #define PG_US_U 4       //U/S属性位值，用户级 
+
+#define DESC_CNT 7  //内存块描述符个数
 
 extern struct pool kernel_pool, user_pool;
 void mem_init(void);

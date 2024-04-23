@@ -24,6 +24,14 @@
 
 #define K_HEAP_START 0xc0100000    //跨过低1mb内存，使虚拟地址在逻辑上连续
 
+struct arena {
+    struct mem_block_desc* desc;    //此arena关联的mem_block_desc
+    uint32_t cnt;       //large为true时cnt表示的是页框数，否则cnt表示空闲mem_block数量
+    bool large;
+};
+
+struct mem_block_desc k_block_descs[DESC_CNT];
+
 struct pool{
     struct bitmap pool_bitmap;//本内存池用到的位图结构，用于管理物理内存
     uint32_t phy_addr_start;//本内存池所管理物理内存的起始地址
@@ -294,11 +302,30 @@ static void mem_pool_init(uint32_t all_mem){
 
 }
 
+//为malloc做准备
+void block_desc_init(struct mem_block_desc* desc_array) {
+    uint16_t desc_idx, block_size = 16;
+
+    //初始化每个mem_block_desc描述符
+    for(desc_idx = 0; desc_idx < DESC_CNT; desc_idx++) {
+        desc_array[desc_idx].block_size = block_size;
+
+        //初始化arena内存块数量
+        desc_array[desc_idx].blocks_per_arena = \
+            (PG_SIZE - sizeof(struct arena)) / block_size;
+
+        list_init(&desc_array[desc_idx].free_list);
+
+        block_size *=2; //更新为下一个规格内存块
+    }
+}
+
 //内存管理部分入口
 
 void mem_init(){
     put_str("----------------------------mem_init_start--------------------------\n");
     uint32_t mem_bytes_total=(*(uint32_t*)(0xb00));
     mem_pool_init(mem_bytes_total);
+    block_desc_init(k_block_descs);
     put_str("----------------------------mem_init_done---------------------------\n");
 }
