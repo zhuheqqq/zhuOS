@@ -25,6 +25,7 @@
 
 #define K_HEAP_START 0xc0100000    //跨过低1mb内存，使虚拟地址在逻辑上连续
 
+//内存仓库
 struct arena {
     struct mem_block_desc* desc;    //此arena关联的mem_block_desc
     uint32_t cnt;       //large为true时cnt表示的是页框数，否则cnt表示空闲mem_block数量
@@ -360,12 +361,13 @@ void* sys_malloc(uint32_t size) {
         return NULL;
     }
 
-    struct arena* a;
-    struct mem_block* b;
+    struct arena* a;    //指向新创建的arena
+    struct mem_block* b;    //指向arena中的mem_block
     lock_acquire(&mem_pool->lock);
 
     //超过最大内存块1024,就分配页框
     if(size > 1024) {
+        //大于1024计算需要的页框数
         uint32_t page_cnt = \
             DIV_ROUND_UP(size + sizeof(struct arena), PG_SIZE);
 
@@ -397,6 +399,7 @@ void* sys_malloc(uint32_t size) {
             }
         }
 
+        //判断是否有可用的内存块
         if(list_empty(&descs[desc_idx].free_list)) {
             a = malloc_page(PF, 1);
             if(a == NULL) {
