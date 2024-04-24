@@ -438,6 +438,99 @@ void* sys_malloc(uint32_t size) {
     }
 }
 
+//将物理地址pg_phy_addr回收到物理内存池
+void pfree(uint32_t pg_phy_addr) {
+    struct pool* mem_pool;
+    uint32_t bit_idx = 0;
+    if(pg_phy_addr >= user_pool.phy_addr_start) {
+        //用户物理内存池
+        mem_pool = &user_pool;
+        bit_idx = (pg_phy_addr - user_pool.phy_addr_start) / PG_SIZE;
+    }else{
+        mem_pool = &kernel_pool;
+        bit_idx = (pg_phy_addr - kernel_pool.phy_addr_start) / PG_SIZE;
+    }
+    bitmap_set(&mem_pool->pool_bitmap, bit_idx, 0); //将位图中该位清0
+}
+
+//去掉页表中虚拟地址的映射，只去掉vaddr对应的pte
+static void page_table_pte_remove(uint32_t vaddr) {
+    uint32_t* pte = pte_ptr(vaddr);
+    *pte &= ~PG_P_1;        //将页表项pte的P位置0
+    asm volatile("invlpg %0"::"m"(vaddr):"memory");     //更新tlb
+}
+
+//在虚拟地址池中释放以vaddr起始的连续pg_cnt个虚拟页地址
+static void vaddr_remove(enum pool_flags pf, \ 
+    void* _vaddr, uint32_t pg_cnt) {
+        uint32_t bit_idx_start = 0, vaddr = (uint32_t)_vaddr, cnt = 0;
+
+        if(pf == PF_KERNEL) {
+            //内核虚拟内存池
+            bit_idx_start = (vaddr - kernel_vaddr.vaddr_start) / PG_SIZE;
+            while(cnt < pg_cnt) {
+                bitmap_set(&kernel_vaddr.vaddr_bitmap, \
+                    bit_idx_start + cnt++, 0);
+            }
+        }else{
+            //用户虚拟内存池
+            struct task_struct* cur_thread = running_thread();
+            bit_idx_start = \
+                (vaddr - cur_thread->userprog_vaddr.vaddr_start) / PG_SIZE;
+                while(cnt < pg_cnt) {
+                    bitmap_set(&cur_thread->userprog_vaddr.vaddr_bitmap, \
+                        bit_idx_start + cnt++, 0);
+                }
+        }
+    }
+
+//释放以虚拟内存地址vaddr为起始的cnt个物理页框
+void mfree_page(enum pool_flags pf, void* _vaddr, uint32_t pg_cnt) {
+    uint32_t pg_phy_addr;
+    uint32_t vaddr = (int32_t)_vaddr, page_cnt = 0;
+    ASSERT(pg_cnt >= 1 && vaddr % PG_SIZE == 0);
+    pg_phy_addr = addr_v2p(vaddr);//获取对应的物理地址
+
+    //确保待释放的物理内存存在，低端1mb+1kb大小页目录+1kb大小页表地址范围外
+    ASSERT((pg_phy_addr % PG_SIZE) == 0 && pg_phy_addr >= 0x1020000);
+
+    //判断pg_phy_addr属于用户物理内存池还是内核物理内存池
+    if(pg_phy_addr >= user_pool.phy_addr_start) {
+        vaddr -= PG_SIZE;
+        while(page_cnt < pg_cnt) {
+            vaddr += PG_SIZE;
+            pg_phy_addr = addr_v2p(vaddr);
+
+            ASSERT((pg_phy_addr % PG_SIZE) == 0 && \
+                pg_phy_addr >= user_pool.phy_addr_start);
+
+            pfree(pg_phy_addr);
+
+            page_table_pte_remove(vaddr);
+
+            page_cnt++;
+        }
+        vaddr_remove(pf, _vaddr, pg_cnt);
+    }else{
+        vaddr -= PG_SIZE;
+        while(page_cnt < pg_cnt) {
+            vaddr += PG_SIZE;
+            pg_phy_addr = addr_v2p(vaddr);
+
+            ASSERT((pg_phy_addr % PG_SIZE) == 0 && \
+                pg_phy_addr >= kernel_pool.phy_addr_start && \
+                pg_phy_addr < user_pool.phy_addr_start);
+
+            pfree(pg_phy_addr);
+
+            page_table_pte_remove(vaddr);
+
+            page_cnt++;
+        }
+        vaddr_remove(pf, _vaddr, pg_cnt);
+    }
+}
+
 //内存管理部分入口
 void mem_init(){
     put_str("----------------------------mem_init_start--------------------------\n");
