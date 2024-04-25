@@ -498,7 +498,7 @@ void mfree_page(enum pool_flags pf, void* _vaddr, uint32_t pg_cnt) {
     pg_phy_addr = addr_v2p(vaddr);//获取对应的物理地址
 
     //确保待释放的物理内存存在，低端1mb+1kb大小页目录+1kb大小页表地址范围外
-    ASSERT((pg_phy_addr % PG_SIZE) == 0 && pg_phy_addr >= 0x1020000);
+    ASSERT((pg_phy_addr % PG_SIZE) == 0 && pg_phy_addr >= 0x102000);
 
     //判断pg_phy_addr属于用户物理内存池还是内核物理内存池
     if(pg_phy_addr >= user_pool.phy_addr_start) {

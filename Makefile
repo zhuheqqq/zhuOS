@@ -106,7 +106,8 @@ $(BUILD_DIR)/syscall.o: lib/user/syscall.c lib/user/syscall.h lib/stdint.h
 
 $(BUILD_DIR)/syscall-init.o: userprog/syscall-init.c userprog/syscall-init.h \
 	lib/stdint.h lib/user/syscall.h lib/kernel/print.h thread/thread.h \
-	lib/kernel/list.h kernel/global.h lib/kernel/bitmap.h kernel/memory.h
+	lib/kernel/list.h kernel/global.h lib/kernel/bitmap.h kernel/memory.h \
+	lib/string.h
 	$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/stdio.o: lib/stdio.c lib/stdio.h lib/stdint.h kernel/interrupt.h \
