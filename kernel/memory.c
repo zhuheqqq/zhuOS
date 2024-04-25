@@ -270,7 +270,7 @@ static void mem_pool_init(uint32_t all_mem){
 
 
     //-------------------------输出内存池信息----------------------------------
-    put_str("------------------kernel_pool_bitmap_start:]");
+    put_str("------------------kernel_pool_bitmap_start:");
     put_int((int)kernel_pool.pool_bitmap.bits);
     put_str("\n");
 
@@ -484,7 +484,13 @@ static void vaddr_remove(enum pool_flags pf, \
         }
     }
 
-//释放以虚拟内存地址vaddr为起始的cnt个物理页框
+//释放以虚拟内存地址_vaddr为起始的cnt个物理页框
+/*
+回收内存三步骤：
+调用pfree清空物理地址位图中的相应位
+再调用page_table_pte_remove删除页表中此地址的pte
+最后调用vaddr_remove清楚虚拟地址位图中的相应位
+*/
 void mfree_page(enum pool_flags pf, void* _vaddr, uint32_t pg_cnt) {
     uint32_t pg_phy_addr;
     uint32_t vaddr = (int32_t)_vaddr, page_cnt = 0;
@@ -528,6 +534,50 @@ void mfree_page(enum pool_flags pf, void* _vaddr, uint32_t pg_cnt) {
             page_cnt++;
         }
         vaddr_remove(pf, _vaddr, pg_cnt);
+    }
+}
+
+//回收内存
+void sys_free(void* ptr) {
+    ASSERT(ptr != NULL);
+    if(ptr !=NULL) {
+        enum pool_flags PF;
+        struct pool* mem_pool;
+
+        //判断是线程还是进程
+        if(running_thread()->pgdir == NULL) {
+            ASSERT((uint32_t)ptr >= K_HEAP_START);
+            PF = PF_KERNEL;
+            mem_pool = &kernel_pool;
+        }else{
+            PF = PF_USER;
+            mem_pool = &user_pool;
+        }
+
+        lock_acquire(&mem_pool->lock);
+        struct mem_block* b = ptr;
+        struct arena* a = block2arena(b);//把mem_block转换成arena获取元信息
+
+        ASSERT(a->large == 0 || a->large == 1);
+        if(a->desc == NULL && a->large == true) {//>1024
+            mfree_page(PF, a, a->cnt);
+        }else{
+            //<1024
+            //先将内存回收到freelist
+            list_append(&a->desc->free_list, &b->free_elem);
+
+            if(++a->cnt == a->desc->blocks_per_arena) {
+                uint32_t block_idx;
+                for(block_idx = 0; block_idx < a->desc->blocks_per_arena; block_idx++) {
+                    struct mem_block* b = arena2block(a, block_idx);
+                    ASSERT(elem_find(&a->desc->free_list, &b->free_elem));
+                    list_remove(&b->free_elem);
+                }
+                mfree_page(PF, a, 1);
+            }
+        }
+        lock_release(&mem_pool->lock);
+
     }
 }
 
