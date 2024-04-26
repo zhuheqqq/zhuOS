@@ -13,6 +13,10 @@
 #include "../kernel/interrupt.h"
 #include "../kernel/debug.h"
 
+#define IRQ0_FREQUENCY 100
+
+#define mil_seconds_per_intr (1000 / IRQ0_FREQUENCY)
+
 #define IRQ0_FREQUENCY	   100
 #define INPUT_FREQUENCY	   1193180
 #define COUNTER0_VALUE	   INPUT_FREQUENCY / IRQ0_FREQUENCY
@@ -55,6 +59,23 @@ static void intr_timer_handler(void){
    }else{
       cur_thread->ticks--;//将当前时间片减1
    }
+}
+
+//以ticks为单位的sleep,任何时间形式的sleep会转换此ticks形式
+static void ticks_to_sleep(uint32_t sleep_ticks) {
+   uint32_t start_tick = ticks;
+
+   //若间隔ticks不够就让出cpu
+   while(ticks - start_tick < sleep_ticks) {
+      thread_yield();
+   }
+}
+
+//以毫秒为单位的sleep
+void mtime_sleep(uint32_t m_seconds) {
+   uint32_t sleep_ticks = DIV_ROUND_UP(m_seconds, mil_seconds_per_intr);
+   ASSERT(sleep_ticks > 0);
+   ticks_to_sleep(sleep_ticks);
 }
 
 /* 初始化PIT8253 */
