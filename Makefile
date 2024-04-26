@@ -17,7 +17,7 @@ OBJS = $(BUILD_DIR)/main.o $(BUILD_DIR)/init.o $(BUILD_DIR)/interrupt.o \
 	  $(BUILD_DIR)/switch.o $(BUILD_DIR)/sync.o	$(BUILD_DIR)/console.o	\
 	  $(BUILD_DIR)/keyboard.o $(BUILD_DIR)/ioqueue.o $(BUILD_DIR)/tss.o \
 	  $(BUILD_DIR)/process.o $(BUILD_DIR)/syscall.o $(BUILD_DIR)/syscall-init.o	\
-	  $(BUILD_DIR)/stdio.o $(BUILD_DIR)/ide.o $(BUILD_DIR)/stdio-kernel.o
+	  $(BUILD_DIR)/stdio.o $(BUILD_DIR)/ide.o $(BUILD_DIR)/stdio-kernel.o 
 
 ##############     MBR代码编译     ############### 
 $(BUILD_DIR)/mbr.bin: boot/mbr.S 
@@ -30,36 +30,36 @@ $(BUILD_DIR)/loader.bin: boot/loader.S
 ##############     c代码编译     ###############
 $(BUILD_DIR)/main.o: kernel/main.c lib/kernel/print.h \
         lib/stdint.h kernel/init.h thread/thread.h device/console.h device/keyboard.h device/ioqueue.h userprog/process.h
-	$(CC) $(CFLAGS) $< -o $@
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/init.o: kernel/init.c kernel/init.h lib/kernel/print.h \
         lib/stdint.h kernel/interrupt.h device/timer.h userprog/process.h
-	$(CC) $(CFLAGS) $< -o $@
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/interrupt.o: kernel/interrupt.c kernel/interrupt.h \
         lib/stdint.h kernel/global.h lib/kernel/io.h lib/kernel/print.h
-	$(CC) $(CFLAGS) $< -o $@
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/timer.o: device/timer.c device/timer.h lib/stdint.h\
          lib/kernel/io.h lib/kernel/print.h
-	$(CC) $(CFLAGS) $< -o $@
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/debug.o: kernel/debug.c kernel/debug.h \
         lib/kernel/print.h lib/stdint.h kernel/interrupt.h
-	$(CC) $(CFLAGS) $< -o $@
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/bitmap.o: lib/kernel/bitmap.c lib/kernel/bitmap.h \
         lib/kernel/print.h lib/stdint.h kernel/interrupt.h kernel/debug.h
-	$(CC) $(CFLAGS) $< -o $@
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/string.o: lib/string.c lib/string.h \
         kernel/global.h kernel/debug.h 
-	$(CC) $(CFLAGS) $< -o $@
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/memory.o: kernel/memory.c kernel/memory.h lib/stdint.h lib/kernel/bitmap.h \
 	   	kernel/global.h kernel/global.h kernel/debug.h lib/kernel/print.h \
 		lib/kernel/io.h kernel/interrupt.h lib/string.h lib/stdint.h
-			$(CC) $(CFLAGS) $< -o $@
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/thread.o: thread/thread.c thread/thread.h lib/stdint.h \
 	    kernel/global.h lib/kernel/bitmap.h kernel/memory.h lib/string.h \
@@ -69,7 +69,7 @@ $(BUILD_DIR)/thread.o: thread/thread.c thread/thread.h lib/stdint.h \
 
 $(BUILD_DIR)/list.o: lib/kernel/list.c lib/kernel/list.h kernel/global.h lib/stdint.h \
 	        kernel/interrupt.h
-		$(CC) $(CFLAGS) $< -o $@
+			$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/sync.o: thread/sync.c thread/sync.h lib/kernel/list.h kernel/global.h \
 	    lib/stdint.h thread/thread.h lib/string.h lib/stdint.h kernel/debug.h \
@@ -77,7 +77,7 @@ $(BUILD_DIR)/sync.o: thread/sync.c thread/sync.h lib/kernel/list.h kernel/global
 		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/console.o: device/console.c device/console.h thread/sync.h thread/thread.h \
-			lib/stdint.h
+		lib/stdint.h
 		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/keyboard.o: device/keyboard.c device/keyboard.h lib/kernel/print.h \
@@ -86,42 +86,43 @@ $(BUILD_DIR)/keyboard.o: device/keyboard.c device/keyboard.h lib/kernel/print.h 
 		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/ioqueue.o: device/ioqueue.c device/ioqueue.h lib/stdint.h thread/thread.h \
-	lib/kernel/list.h kernel/global.h thread/sync.h thread/thread.h kernel/interrupt.h \
-	kernel/debug.h
-	$(CC) $(CFLAGS) $< -o $@
+		lib/kernel/list.h kernel/global.h thread/sync.h thread/thread.h kernel/interrupt.h \
+		kernel/debug.h
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/tss.o: userprog/tss.c userprog/tss.h thread/thread.h lib/stdint.h \
-	lib/kernel/list.h kernel/global.h lib/string.h lib/stdint.h \
-	lib/kernel/print.h kernel/memory.h
-	$(CC) $(CFLAGS) $< -o $@
+		lib/kernel/list.h kernel/global.h lib/string.h lib/stdint.h \
+		lib/kernel/print.h kernel/memory.h
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/process.o: userprog/process.c userprog/process.h thread/thread.h \
-	lib/stdint.h lib/kernel/list.h kernel/global.h kernel/debug.h \
-	kernel/memory.h lib/kernel/bitmap.h userprog/tss.h kernel/interrupt.h \
-	lib/string.h lib/stdint.h
-	$(CC) $(CFLAGS) $< -o $@
+		lib/stdint.h lib/kernel/list.h kernel/global.h kernel/debug.h \
+		kernel/memory.h lib/kernel/bitmap.h userprog/tss.h kernel/interrupt.h \
+		lib/string.h lib/stdint.h
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/syscall.o: lib/user/syscall.c lib/user/syscall.h lib/stdint.h
-	$(CC) $(CFLAGS) $< -o $@
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/syscall-init.o: userprog/syscall-init.c userprog/syscall-init.h \
-	lib/stdint.h lib/user/syscall.h lib/kernel/print.h thread/thread.h \
-	lib/kernel/list.h kernel/global.h lib/kernel/bitmap.h kernel/memory.h \
-	lib/string.h
-	$(CC) $(CFLAGS) $< -o $@
+		lib/stdint.h lib/user/syscall.h lib/kernel/print.h thread/thread.h \
+		lib/kernel/list.h kernel/global.h lib/kernel/bitmap.h kernel/memory.h \
+		lib/string.h
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/stdio.o: lib/stdio.c lib/stdio.h lib/stdint.h kernel/interrupt.h \
-	lib/stdint.h kernel/global.h lib/string.h lib/user/syscall.h lib/kernel/print.h
-	$(CC) $(CFLAGS) $< -o $@
+		lib/stdint.h kernel/global.h lib/string.h lib/user/syscall.h lib/kernel/print.h
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/ide.o: device/ide.c device/ide.h lib/stdint.h thread/sync.h \
-	lib/kernel/list.h kernel/global.h thread/thread.h lib/kernel/bitmap.h \
-	kernel/memory.h lib/kernel/io.h lib/stdio.h lib/stdint.h lib/kernel/stdio-kernel.h\
-	kernel/interrupt.h kernel/debug.h device/console.h device/timer.h lib/string.h
-	$(CC) $(CFLAGS) $< -o $@
+		lib/kernel/list.h kernel/global.h thread/thread.h lib/kernel/bitmap.h \
+		kernel/memory.h lib/kernel/io.h lib/stdio.h lib/stdint.h lib/kernel/stdio-kernel.h\
+		kernel/interrupt.h kernel/debug.h device/console.h device/timer.h lib/string.h
+		$(CC) $(CFLAGS) $< -o $@
 
 $(BUILD_DIR)/stdio-kernel.o: lib/kernel/stdio-kernel.c lib/kernel/stdio-kernel.h lib/stdint.h \
-	lib/kernel/print.h lib/stdio.h lib/stdint.h device/console.h kernel/global.h
+		lib/kernel/print.h lib/stdio.h lib/stdint.h device/console.h kernel/global.h
+		$(CC) $(CFLAGS) $< -o $@
 
 ##############    汇编代码编译    ###############
 $(BUILD_DIR)/kernel.o: kernel/kernel.S
