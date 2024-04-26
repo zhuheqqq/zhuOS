@@ -6,6 +6,7 @@
 extern put_str      ;声明外部函数
 extern idt_table ;c中的注册的中断处理程序数组
 
+
 section .data
 global intr_entry_table         ;全局数组
 intr_entry_table:

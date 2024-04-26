@@ -11,6 +11,8 @@
 #include "list.h"
 #include "io.h"
 
+
+
 /* 定义硬盘各寄存器的端口号 */
 #define reg_data(channel)	 (channel->port_base + 0)
 #define reg_error(channel)	 (channel->port_base + 1)
@@ -173,6 +175,9 @@ void ide_read(struct disk* hd, uint32_t lba, void* buf, uint32_t sec_cnt) {
       select_sector(hd, lba + secs_done, secs_op);
       //3.执行的命令写入reg_cmd寄存器
       cmd_out(hd->my_channel, CMD_READ_SECTOR);
+/*在硬盘已经开始工作(开始在内部读数据或写数据)后才能阻塞自己,现在硬盘已经开始忙了,
+将自己阻塞,等待硬盘完成读操作后通过中断处理程序唤醒自己*/
+      sema_down(&hd->my_channel->disk_done);
 
       //4.检测硬盘状态是否可读
       if(!busy_wait(hd)) {

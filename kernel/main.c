@@ -20,6 +20,7 @@ void u_prog_b(void);
 int main(void){
     put_str("hello kernel!\n");
     init_all();
+    while(1);
     intr_enable();
 
     process_execute(u_prog_a, "u_prog_a");
