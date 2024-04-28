@@ -223,7 +223,7 @@ void ide_write(struct disk* hd, uint32_t lba, void* buf, uint32_t sec_cnt) {
          PANIC(error);
       }
 
-      //5.把数据从硬盘缓冲区读出
+      //5.数据写入磁盘
       write2sector(hd, (void*)((uint32_t)buf + secs_done * 512), secs_op);
       
       //在硬盘响应期间阻塞自己

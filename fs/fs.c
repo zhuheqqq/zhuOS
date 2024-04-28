@@ -11,6 +11,53 @@
 #include "debug.h"
 #include "memory.h"
 
+struct partition* cur_part; //默认情况下操作的是哪个分区
+
+//在分区链表中找到名为part_name的分区，并将其指针赋值给cur_part
+//是list_traversal的回调函数
+static bool mount_partition(struct list_elem* pelem, int arg) {
+    char* part_name = (char*)arg;
+    struct partition* part = elem2entry(struct partition, part_tag, pelem);
+    if(!strcmp(part->name, part_name)){
+        cur_part = part;
+        struct disk* hd = cur_part->my_disk;
+
+        //sb_buf存储从硬盘读入的超级块
+        struct super_block* sb_buf = (struct super_block*)sys_malloc(SECTOR_SIZE);
+
+        //在内存中创建分区cur_part的超级块
+        cur_part->sb = (struct super_block*)sys_malloc(sizeof(struct super_block));
+        if(cur_part->sb == NULL) {
+            PANIC("alloc memory failed!");
+        }
+
+        //读入超级块
+        memset(sb_buf, 0, SECTOR_SIZE);
+        ide_read(hd, cur_part->start_lba + 1, sb_buf, 1);
+
+        //把sb_buf中的超级块的信息复制到分区的超级块sb中
+        memcpy(cur_part->sb, sb_buf, sizeof(struct super_block));
+
+        //将硬盘上的块位图读入到内存
+        cur_part->block_bitmap.bits = (uint8_t*)sys_malloc(sb_buf->block_bitmap_sects * SECTOR_SIZE);
+
+        if(cur_part->block_bitmap.bits == NULL) {
+            PANIC("alloc memory failed!");
+        }
+        cur_part->block_bitmap.btmp_bytes_len = sb_buf->block_bitmap_sects * SECTOR_SIZE;
+
+        //从硬盘上读入块位图到分区的block_bitmap_bits
+        ide_read(hd, sb_buf->block_bitmap_lba, cur_part->inode_bitmap.bits, sb_buf->inode_bitmap_sects);
+
+        list_init(&cur_part->open_inodes);
+        printk("mount %s done!\n",part->name);
+
+
+        return true;//只有返回true  list_traversal才会停止遍历
+    }
+    return false;
+}
+
 /*
 根据分区part大小，计算分区文件系统各元信息需要的扇区数及位置
 在内存中创建超级块，将上述计算步骤的元信息写入超级块
@@ -189,6 +236,10 @@ void filesys_init() {
         channel_no++;//下一通道
     }
     sys_free(sb_buf);
+
+    char default_part[8] = "sdb1";//确定操作的默认分区
+    //挂载分区
+    list_traversal(&partition_list, mount_partition, (int)default_part);
 }
 
 
