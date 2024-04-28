@@ -68,7 +68,7 @@ struct partition_table_entry {
    uint32_t start_lba;//本分区起始扇区的lba地址
    uint32_t sec_cnt;//本分区扇区数目
 
-}__attribute__((packed));
+}__attribute__((packed));//保证此结构为16字节
 
 //引导扇区，mbr或者ebr所在扇区
 struct boot_sector{
@@ -84,7 +84,7 @@ static void select_disk(struct disk* hd){
    if(hd->dev_no == 1){
       reg_device |= BIT_DEV_DEV;
    }
-   outb(reg_dev(hd->my_channel),reg_device);
+   outb(reg_dev(hd->my_channel), reg_device);
 }
 
 //向硬盘控制器写入起始扇区地址及要读写的扇区数
@@ -97,7 +97,7 @@ static void select_sector(struct disk* hd, uint32_t lba, uint8_t sec_cnt) {
    struct ide_channel* channel = hd->my_channel;
 
    //写入要读写的扇区数
-   outb(reg_sect_cnt(channel),sec_cnt);//如果sec_cnt为0,则表示写入256个扇区
+   outb(reg_sect_cnt(channel), sec_cnt);//如果sec_cnt为0,则表示写入256个扇区
 
    //写入lba地址即扇区号
    outb(reg_lba_l(channel),lba);//lba地址的低8位，不用单独取出低8位
@@ -168,7 +168,7 @@ void ide_read(struct disk* hd, uint32_t lba, void* buf, uint32_t sec_cnt) {
       if((secs_done + 256) <= sec_cnt) {
          secs_op = 256;
       }else{
-         secs_op = sec_cnt -secs_done;
+         secs_op = sec_cnt - secs_done;
       }
 
       //2.写入待读入的扇区数和起始扇区号
@@ -219,12 +219,12 @@ void ide_write(struct disk* hd, uint32_t lba, void* buf, uint32_t sec_cnt) {
       //4.检测硬盘状态是否可读
       if(!busy_wait(hd)) {
          char error[64];
-         sprintf(error, "%s read sector %d failed!!!!!!\n",hd->name, lba);
+         sprintf(error, "%s write sector %d failed!!!!!!\n",hd->name, lba);
          PANIC(error);
       }
 
       //5.把数据从硬盘缓冲区读出
-      read_from_sector(hd, (void*)((uint32_t)buf + secs_done * 512), secs_op);
+      write2sector(hd, (void*)((uint32_t)buf + secs_done * 512), secs_op);
       
       //在硬盘响应期间阻塞自己
       sema_down(&hd->my_channel->disk_done);
