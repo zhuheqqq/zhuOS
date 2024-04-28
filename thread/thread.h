@@ -9,6 +9,9 @@ typedef void thread_func(void*);
 
 typedef int16_t pid_t;
 
+#define MAX_FILES_OPEN_PER_PROC 8       //每个人物可以打开的文件数
+
+
 //线程状态
 enum task_status{
     TASK_RUNNING,
@@ -88,6 +91,13 @@ struct task_struct{
     struct virtual_addr userprog_vaddr; //用户进程的虚拟地址
 
     struct mem_block_desc u_block_desc[DESC_CNT]; //用户进程内存块描述符
+
+
+    uint32_t elapsed_ticks;
+
+    int32_t fd_table[MAX_FILES_OPEN_PER_PROC];//文件描述符数组
+
+    
 };
 
 extern struct list thread_ready_list;

@@ -84,6 +84,17 @@ void init_thread(struct task_struct* pthread,char* name,int prio){
         pthread->status=TASK_READY;
     }
 
+    //预留标准输入输出
+    pthread->fd_table[0] = 0;//标准输入
+    pthread->fd_table[1] = 1;//标准输出
+    pthread->fd_table[2] = 2;//标准错误
+    //其余全部置1
+    uint8_t fd_idx = 3;
+    while(fd_idx < MAX_FILES_OPEN_PER_PROC) {
+        pthread->fd_table[fd_idx] = -1;
+        fd_idx++;
+    }
+
 
     //self_kstack是线程自己在内核态下(特权级0)使用的栈顶地址
     pthread->self_kstack=(uint32_t*)((uint32_t)pthread+PG_SIZE);
