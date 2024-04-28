@@ -5,7 +5,7 @@
 
 //inode结构
 struct inode{
-    uint32_t _no;//inode编号
+    uint32_t i_no;//inode编号
 
     //if the inode is fs_inode, then i_size is the size of the file
     //否则，是该目录下所有目录项之和
