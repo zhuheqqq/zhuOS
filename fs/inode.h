@@ -15,7 +15,7 @@ struct inode{
     uint32_t i_open_cnts;//记录此文件被打开的次数
     bool write_deny;//写文件不能并行，进程写文件前检查此标识
 
-    uint32_t i_sectors[13];//0-12是直接块，12是存储一级间接块指针
+    uint32_t i_sectors[13];//0-11是直接块，12是存储一级间接块指针
     struct list_elem inode_tag;
 };
 
