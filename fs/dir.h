@@ -22,6 +22,7 @@ struct dir_entry {
     uint32_t i_no;  //对应的inode编号
     enum file_types f_type; //文件类型
 };
+struct dir root_dir;
 
 
 #endif

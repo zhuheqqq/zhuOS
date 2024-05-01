@@ -207,15 +207,78 @@ int32_t path_depth_cnt(char* pathname) {
     uint32_t depth = 0;
 
     //解析路径
-    p = path+parse(p, name);
+    p = path_parse(p, name);
     while(name[0]) {
         depth++;
         memset(name, 0, MAX_FILE_NAME_LEN);
         if(p) {
-            p = path+parse(p, name);
+            p = path_parse(p, name);
         }
     }
     return depth;
+}
+
+//搜索文件，找到返回inode号
+static int search_file(const char* pathname, struct path_search_record* searched_record) {
+    //如果是根目录直接返回
+    if(!strcmp(pathname, "/") || !strcmp(pathname, "/.") || !strcmp(pathname, "/..")) {
+        searched_record->parent_dir = &root_dir;
+        searched_record->file_type = FT_DIRECTORY;
+        searched_record->searched_path[0] = 0;  //搜索路径置空
+        return 0;
+    }
+
+    uint32_t path_len = strlen(pathname);
+
+    ASSERT(pathname[0] == '/' && path_len > 1 && path_len < MAX_PATH_LEN);
+    char* sub_path = (char*)pathname;
+    struct dir* parent_dir = &root_dir;
+    struct dir_entry dir_e;
+
+    //记录路径解析出来的各级名称
+    char name[MAX_FILE_NAME_LEN] = {0};
+
+    searched_record->parent_dir = parent_dir;
+    searched_record->file_type = FT_UNKNOWN;
+    uint32_t parent_inode_no = 0;//父目录的inode号
+
+    sub_path = path_parse(sub_path, name);
+    while(name[0]){
+        //结束符结束循环
+        ASSERT(strlen(searched_record->searched_path) < 512);
+
+        //记录已存在的父目录
+        strcat(searched_record->searched_path, "/");
+        strcat(searched_record->searched_path, name);
+
+        //在所给目录中查找文件
+        if(search_dir_entry(cur_part, parent_dir, name, &dir_e)) {
+            memset(name, 0, MAX_FILE_NAME_LEN);
+            if(sub_path) {
+                sub_path = path_parse(sub_path, name);
+            }
+
+            if(FT_DIRECTORY == dir_e.f_type) {//打开的是目录
+                parent_inode_no = parent_dir->inode->i_no;
+                dir_close(parent_dir);
+                parent_dir = dir_open(cur_part, dir_e.i_no);
+                searched_record->parent_dir = parent_dir;
+                continue;
+            }else if(FT_REGULAR == dir_e.f_type) {
+                //普通文件
+                searched_record->file_type = FT_REGULAR;
+                return dir_e.i_no;
+            }
+        }else{
+            return -1;
+        }
+    }
+    dir_close(searched_record->parent_dir);
+
+    //保存被查找的直接父目录
+    searched_record->parent_dir = dir_open(cur_part, parent_inode_no);
+    searched_record->file_type = FT_DIRECTORY;
+    return dir_e.i_no;
 }
 
 //在磁盘搜索文件系统,若没有则格式化分区创建文件系统
