@@ -1,6 +1,6 @@
 #include "inode.h"
 #include "fs.h"
-//#include "file.h"
+#include "file.h"
 #include "global.h"
 #include "debug.h"
 #include "memory.h"
@@ -121,6 +121,8 @@ struct inode* inode_open(struct partition* part, uint32_t inode_no) {
     inode_found->i_open_cnts = 1;
 
     sys_free(inode_buf);
+
+    printk("inode_open end...\n");
     return inode_found;
 }
 

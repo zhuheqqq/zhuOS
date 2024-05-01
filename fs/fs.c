@@ -408,6 +408,8 @@ void filesys_init() {
     while(fd_idx < MAX_FILE_OPEN){
         file_table[fd_idx++].fd_inode = NULL;
     }
+
+    printk("filesys_init end...\n");
 }
 
 

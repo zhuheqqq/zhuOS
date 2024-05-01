@@ -10,6 +10,8 @@
 #include "syscall.h"
 #include "syscall-init.h"
 #include "stdio.h"
+#include "memory.h"
+#include "fs.h"
 
 void k_thread_a(void*);
 void k_thread_b(void*);
@@ -20,13 +22,14 @@ void u_prog_b(void);
 int main(void){
     put_str("hello kernel!\n");
     init_all();
-    while(1);
-    intr_enable();
+   
 
     process_execute(u_prog_a, "u_prog_a");
     process_execute(u_prog_b, "u_prog_b");
     thread_start("k_thread_a",32,k_thread_a,"argA  ");
     thread_start("k_thread_b",32,k_thread_b,"argB  ");
+
+    sys_open("/file1", O_CREAT);
 
 
     while(1);

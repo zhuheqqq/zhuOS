@@ -11,12 +11,14 @@
 #include "interrupt.h"
 #include "super_block.h"
 
-struct dir root_dir;    //根目录
+struct dir root_dir;
 
 //打开根目录
 void open_root_dir(struct partition* part) {
+    printk("open_root_dir...\n");
     root_dir.inode = inode_open(part, part->sb->root_inode_no);
     root_dir.dir_pos = 0;
+    printk("open_root_dir end...\n");
 }
 
 //在分区part上打开i结点为inode_no的目录并返回目录指针

@@ -19,4 +19,6 @@ struct inode{
     struct list_elem inode_tag;
 };
 
+
+
 #endif

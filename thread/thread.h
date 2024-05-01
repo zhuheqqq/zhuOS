@@ -93,8 +93,6 @@ struct task_struct{
     struct mem_block_desc u_block_desc[DESC_CNT]; //用户进程内存块描述符
 
 
-    uint32_t elapsed_ticks;
-
     int32_t fd_table[MAX_FILES_OPEN_PER_PROC];//文件描述符数组
 
     
