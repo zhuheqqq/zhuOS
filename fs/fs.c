@@ -47,6 +47,11 @@ static bool mount_partition(struct list_elem* pelem, int arg) {
         }
         cur_part->block_bitmap.btmp_bytes_len = sb_buf->block_bitmap_sects * SECTOR_SIZE;
 
+        cur_part->inode_bitmap.bits = (uint8_t*)sys_malloc(sb_buf->inode_bitmap_sects * SECTOR_SIZE);
+        if (cur_part->inode_bitmap.bits == NULL) {
+            PANIC("alloc memory failed!");
+        }
+        cur_part->inode_bitmap.btmp_bytes_len = sb_buf->inode_bitmap_sects * SECTOR_SIZE;
         //从硬盘上读入块位图到分区的block_bitmap_bits
         ide_read(hd, sb_buf->block_bitmap_lba, cur_part->inode_bitmap.bits, sb_buf->inode_bitmap_sects);
 

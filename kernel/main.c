@@ -30,6 +30,9 @@ int main(void){
     thread_start("k_thread_b",32,k_thread_b,"argB  ");
 
     sys_open("/file1", O_CREAT);
+    sys_open("/file2", O_CREAT);
+    sys_open("/file3", O_CREAT);
+    sys_open("/file4", O_CREAT);
 
 
     while(1);

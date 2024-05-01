@@ -29,8 +29,8 @@ int bitmap_scan(struct bitmap* btmp,uint32_t cnt){
         idx_byte++;
     }
 
-    ASSERT(idx_byte<btmp->btmp_bytes_len);
-    if(idx_byte==btmp->btmp_bytes_len){//idx_byte已经遍历完整个位图
+    ASSERT(idx_byte < btmp->btmp_bytes_len);
+    if(idx_byte == btmp->btmp_bytes_len){//idx_byte已经遍历完整个位图
         return -1;
     }
 
