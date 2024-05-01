@@ -181,6 +181,43 @@ static void partition_format(struct partition *part)
 
 }
 
+//解析命令
+static char* path_parse(char* pathname, char* name_store) {
+    if(pathname[0] == '/') {//根目录不用单独解析
+        while(*(++pathname) == '/');//跳过////
+    }
+    //开始一般路径解析
+    while(*pathname != '/' && *pathname != 0) {
+        *name_store++ = *pathname++;
+    }
+    if(pathname[0] == 0) {
+        //如果路径为空，返回NULL
+        return NULL;
+    }
+    return pathname;
+
+}
+
+//返回路径深度
+int32_t path_depth_cnt(char* pathname) {
+    ASSERT(pathname != NULL);
+    char* p = pathname;
+    char name[MAX_FILE_NAME_LEN];
+
+    uint32_t depth = 0;
+
+    //解析路径
+    p = path+parse(p, name);
+    while(name[0]) {
+        depth++;
+        memset(name, 0, MAX_FILE_NAME_LEN);
+        if(p) {
+            p = path+parse(p, name);
+        }
+    }
+    return depth;
+}
+
 //在磁盘搜索文件系统,若没有则格式化分区创建文件系统
 void filesys_init() {
     uint8_t channel_no = 0, dev_no, part_idx = 0;
