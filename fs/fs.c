@@ -393,6 +393,18 @@ int32_t sys_write(int32_t fd, const void* buf, uint32_t count) {
     }
 }
 
+//从文件描述符fd中指向的文件读取count个字节到buf,成功返回读出的字节数
+int32_t sys_read(int32_t fd, void* buf, uint32_t count) {
+    if(fd < 0) {
+        printk("sys_read: fd error\n");
+        return -1;
+    }
+
+    ASSERT(buf != NULL);
+    uint32_t _fd = fd_local2global(fd);
+    return file_read(&file_table[_fd], buf, count);
+}
+
 //在磁盘搜索文件系统,若没有则格式化分区创建文件系统
 void filesys_init() {
     uint8_t channel_no = 0, dev_no, part_idx = 0;
