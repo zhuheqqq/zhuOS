@@ -9,7 +9,7 @@
 #include "process.h"
 #include "syscall.h"
 #include "syscall-init.h"
-#include "stdio.h"
+#include "../lib/stdio.h"
 #include "memory.h"
 #include "fs.h"
 
@@ -22,20 +22,26 @@ void u_prog_b(void);
 int main(void){
     put_str("hello kernel!\n");
     init_all();
-   
+    
+    //intr_enable();
 
+  
     process_execute(u_prog_a, "u_prog_a");
+ 
     process_execute(u_prog_b, "u_prog_b");
+    
     thread_start("k_thread_a",32,k_thread_a,"argA  ");
+   
     thread_start("k_thread_b",32,k_thread_b,"argB  ");
+  
 
-    uint32_t fd = sys_open("/file1", O_RDONLY);
-    printf("fd:%d\n",fd);
+
+    uint32_t fd = sys_open("/file1", O_RDWR);
+    printf("fd:%d\n", fd);
+    sys_write(fd, "I'm file1\n", 9);
     sys_close(fd);
     printf("%d closed now\n", fd);
-    // sys_open("/file2", O_CREAT);
-    // sys_open("/file3", O_CREAT);
-    // sys_open("/file4", O_CREAT);
+    
 
 
     while(1);

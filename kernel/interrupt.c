@@ -106,9 +106,9 @@ static void general_intr_handler(uint8_t vec_nr){
     put_str(intr_name[vec_nr]);
     if(vec_nr ==14){//如果为pagefault,将缺失的地址打印出来并悬停
         int page_fault_vaddr=0;
-        asm("movl %%cr2,%0":"=r"(page_fault_vaddr));
+        asm("movl %%cr2,%0":"=r"(page_fault_vaddr));// cr2是存放造成page_fault的地址
 
-        put_str("\n page fault addr is");
+        put_str("\n page fault addr is ");
         put_int(page_fault_vaddr);
     }
 

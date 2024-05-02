@@ -23,6 +23,7 @@ void init_all(){
     keyboard_init();//键盘初始化
     tss_init();//tss初始化
     syscall_init();
+    intr_enable();
     ide_init();
     filesys_init();
 }
