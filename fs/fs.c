@@ -47,6 +47,7 @@ static bool mount_partition(struct list_elem* pelem, int arg) {
         }
         cur_part->block_bitmap.btmp_bytes_len = sb_buf->block_bitmap_sects * SECTOR_SIZE;
 
+        //将硬盘上的inode位图读入到内存
         cur_part->inode_bitmap.bits = (uint8_t*)sys_malloc(sb_buf->inode_bitmap_sects * SECTOR_SIZE);
         if (cur_part->inode_bitmap.bits == NULL) {
             PANIC("alloc memory failed!");
@@ -339,10 +340,31 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
             fd = file_create(searched_record.parent_dir, (strrchr(pathname, '/') + 1), flags);
             dir_close(searched_record.parent_dir);
             //其余为打开文件
+        default:
+            fd = file_open(inode_no, flags);
     }
 
     return fd;//pcb->fd_table数组的元素下标
 
+}
+
+//将文件描述符转化为文件表的下标
+static uint32_t fd_local2global(uint32_t local_fd) {
+    struct task_struct* cur = running_thread();
+    int32_t global_fd = cur->fd_table[local_fd];
+    ASSERT(global_fd >=0 && global_fd < MAX_FILE_OPEN);
+    return (uint32_t)global_fd;
+}
+
+//关闭文件描述符fd指向的文件，成功返回0,否则返回-1
+int32_t sys_close(int32_t fd) {
+    int32_t ret = -1;
+    if(fd > 2) {
+        uint32_t _fd = fd_local2global(fd);
+        ret = file_close(&file_table[_fd]);
+        running_thread()->fd_table[fd] = -1;//使该文件描述符可用
+    }
+    return ret;
 }
 
 //在磁盘搜索文件系统,若没有则格式化分区创建文件系统

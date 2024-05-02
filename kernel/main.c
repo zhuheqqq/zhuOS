@@ -29,10 +29,13 @@ int main(void){
     thread_start("k_thread_a",32,k_thread_a,"argA  ");
     thread_start("k_thread_b",32,k_thread_b,"argB  ");
 
-    sys_open("/file1", O_CREAT);
-    sys_open("/file2", O_CREAT);
-    sys_open("/file3", O_CREAT);
-    sys_open("/file4", O_CREAT);
+    uint32_t fd = sys_open("/file1", O_RDONLY);
+    printf("fd:%d\n",fd);
+    sys_close(fd);
+    printf("%d closed now\n", fd);
+    // sys_open("/file2", O_CREAT);
+    // sys_open("/file3", O_CREAT);
+    // sys_open("/file4", O_CREAT);
 
 
     while(1);
