@@ -26,6 +26,13 @@ enum oflags {
     O_CREAT = 4//创建
 };
 
+//文件读写位置偏移量
+enum whence {
+    SEEK_SET = 1,
+    SEEK_CUR,
+    SEEK_END
+};
+
 //用来记录查找文件过程中已找到的上级路径，也就是查找文件过程中“走过的地方”
 struct path_search_record {
     char searched_path[MAX_PATH_LEN];

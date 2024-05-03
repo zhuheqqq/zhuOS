@@ -251,7 +251,7 @@ int32_t file_write(struct file* file, const void* buf, uint32_t count) {
     uint32_t block_idx;//块索引
 
     //判断文件是否是第一次写
-    if(file->fd_inode->i_sectors[0] == 0) {
+   if(file->fd_inode->i_sectors[0] == 0) {
         block_lba = block_bitmap_alloc(cur_part);
         if(block_lba == -1) {
             printk("file_write: block_bitmap_alloc failed\n");
@@ -324,6 +324,8 @@ int32_t file_write(struct file* file, const void* buf, uint32_t count) {
             block_lba = block_bitmap_alloc(cur_part);
             if(block_lba == -1) {
                 printk("file_write: block_bitmap_alloc for situation 2 failed\n");
+                sys_free(all_blocks);
+                sys_free(io_buf);
                 return -1;
             }
 
@@ -331,6 +333,9 @@ int32_t file_write(struct file* file, const void* buf, uint32_t count) {
 
             //分配一级间接块索引
             indirect_block_table = file->fd_inode->i_sectors[12] = block_lba;
+
+            block_bitmap_idx = block_lba - cur_part->sb->data_start_lba;
+            bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
 
             block_idx = file_has_used_blocks;
 
