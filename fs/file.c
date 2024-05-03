@@ -439,6 +439,7 @@ int32_t file_read(struct file* file, void* buf, uint32_t count) {
     uint8_t* io_buf = sys_malloc(BLOCK_SIZE);
     if(io_buf == NULL) {
         printk("file_read: sys_malloc for io_buf failed\n");
+        return -1;
     }
 
     uint32_t* all_blocks = (uint32_t*)sys_malloc(BLOCK_SIZE + 48);//记录文件所有块地址

@@ -45,4 +45,7 @@ int32_t path_depth_cnt(char* pathname);
 int32_t sys_open(const char* pathname, uint8_t flags);
 void filesys_init(void);
 int32_t sys_write(int32_t fd,const void* buf,uint32_t count);
+int32_t sys_lseek(int32_t fd, int32_t offset, uint8_t whence);
+int32_t sys_unlink(const char* pathname);
+int32_t sys_mkdir(const char* pathname);
 #endif

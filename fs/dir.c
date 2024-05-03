@@ -306,6 +306,9 @@ bool delete_dir_entry(struct partition* part, struct dir* pdir, uint32_t inode_n
                 else
                 { // 间接索引表中就当前这1个间接块,直接把间接索引表所在的块回收,然后擦除间接索引表块地址
                     /* 回收间接索引表所在的块 */
+
+                    all_blocks[block_idx] = 0;
+                    ide_write(part->my_disk, dir_inode->i_sectors[12], all_blocks + 12, 1);
                     block_bitmap_idx = dir_inode->i_sectors[12] - part->sb->data_start_lba;
                     bitmap_set(&part->block_bitmap, block_bitmap_idx, 0);
                     bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
