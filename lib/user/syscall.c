@@ -75,3 +75,11 @@ pid_t fork(void){
 int32_t read(int32_t fd, void* buf, uint32_t count) {
     return _syscall3(SYS_READ, fd, buf, count);
 }
+
+void putchar(char char_asci) {
+    _syscall1(SYS_PUTCHAR, char_asci);
+}
+
+void clear(void) {
+    _syscall0(SYS_CLEAR);
+}
