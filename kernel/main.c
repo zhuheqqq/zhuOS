@@ -1,6 +1,6 @@
 #include "print.h"
 #include "init.h"
-//#include "debug.h"
+#include "debug.h"
 #include "thread.h"
 #include "console.h"
 #include "interrupt.h"
@@ -12,11 +12,14 @@
 #include "../lib/stdio.h"
 #include "memory.h"
 #include "fs.h"
+#include "shell.h"
 
 
 int main(void){
     put_str("hello kernel!\n");
     init_all();
+    cls_screen();
+    console_put_str("[zhuheqin@localhost /] $ ");
     
     while(1);
 
@@ -26,9 +29,9 @@ int main(void){
 void init(void) {
     uint32_t ret_pid = fork();
     if(ret_pid) {
-        printf("i am father, my pid is %d, child pid is %d\n", getpid(), ret_pid);
+        while(1);
     }else {
-        printf("i am child, my pid is %d, ret pid is %d\n", getpid(), ret_pid);
+        my_shell();
     }
-    while(1);
+    PANIC("init: should not be here");
 }
