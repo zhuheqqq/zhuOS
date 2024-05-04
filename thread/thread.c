@@ -103,6 +103,8 @@ void init_thread(struct task_struct* pthread,char* name,int prio){
     pthread->elapsed_ticks=0;
     pthread->pgdir=NULL;
     pthread->stack_magic=0x19870916;//自定义魔数
+    pthread->cwd_inode_nr = 0; //以根目录为默认工作路径
+    
 
 }
 
@@ -235,6 +237,7 @@ void thread_init(void){
     list_init(&thread_ready_list);
     list_init(&thread_all_list);
     lock_init(&pid_lock);
+
 
     //将当前main函数创建为线程
     make_main_thread();
