@@ -14,6 +14,13 @@
 
 struct partition* cur_part; //默认情况下操作的是哪个分区
 
+//文件属性结构体
+struct stat {
+    uint32_t st_ino;        //inode编号
+    uint32_t st_size;   //尺寸
+    enum file_types st_filetype;//文件类型
+};
+
 //在分区链表中找到名为part_name的分区，并将其指针赋值给cur_part
 //是list_traversal的回调函数
 static bool mount_partition(struct list_elem* pelem, int arg) {
@@ -821,6 +828,36 @@ int32_t sys_chdir(const char* path) {
         }else {
             printk("sys_chdir: %s is regular file or other!\n", path);
         }
+    }
+    dir_close(searched_record.parent_dir);
+    return ret;
+}
+
+//在buf中填充文件结构相关信息，成功时返回0,失败-1
+int32_t sys_stat(const char* path, struct stat* buf) {
+    //直接查看根目录
+    if(!strcmp(path, "/") || !strcmp(path, "/.") || !strcmp(path, "/..")) {
+        buf->st_filetype = FT_DIRECTORY;
+        buf->st_ino = 0;
+        buf->st_size = root_dir.inode->i_size;
+        return 0;
+    }
+
+    int32_t ret = -1;   //默认返回值
+    struct path_search_record searched_record;
+    memset(&searched_record, 0, sizeof(struct path_search_record));
+
+    int inode_no = search_file(path, &searched_record);
+    if(inode_no != -1) {
+        struct inode* obj_inode = inode_open(cur_part, inode_no);
+
+        buf->st_size = obj_inode->i_size;
+        inode_close(obj_inode);
+        buf->st_ino = inode_no;
+        buf->st_filetype = searched_record.file_type;
+        ret = 0;
+    }else {
+        printk("sys_stat: %s not found\n", path);
     }
     dir_close(searched_record.parent_dir);
     return ret;
