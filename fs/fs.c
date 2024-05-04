@@ -808,6 +808,24 @@ char* sys_getcwd(char* buf, uint32_t size) {
     return buf;
 }
 
+//更改当前工作目录
+int32_t sys_chdir(const char* path) {
+    int32_t ret = -1;
+    struct path_search_record searched_record;
+    memset(&searched_record, 0, sizeof(struct path_search_record));
+    int inode_no = search_file(path, &searched_record);
+    if(inode_no != -1) {
+        if(searched_record.file_type == FT_DIRECTORY) {
+            running_thread()->cwd_inode_nr = inode_no;
+            ret = 0;
+        }else {
+            printk("sys_chdir: %s is regular file or other!\n", path);
+        }
+    }
+    dir_close(searched_record.parent_dir);
+    return ret;
+}
+
 //在磁盘搜索文件系统,若没有则格式化分区创建文件系统
 void filesys_init() {
     uint8_t channel_no = 0, dev_no, part_idx = 0;
