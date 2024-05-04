@@ -71,3 +71,7 @@ uint32_t write(int32_t fd, const void* buf, uint32_t count) {
 pid_t fork(void){
     return _syscall0(SYS_FORK);
 }
+
+int32_t read(int32_t fd, void* buf, uint32_t count) {
+    return _syscall3(SYS_READ, fd, buf, count);
+}
