@@ -1,4 +1,5 @@
 #include "syscall.h"
+#include "thread.h"
 
 //无参数系统调用
 #define _syscall0(NUMBER)({ \
@@ -65,4 +66,8 @@ void free(void* ptr) {
 
 uint32_t write(int32_t fd, const void* buf, uint32_t count) {
     return _syscall3(SYS_WRITE, fd, buf, count);
+}
+
+pid_t fork(void){
+    return _syscall0(SYS_FORK);
 }

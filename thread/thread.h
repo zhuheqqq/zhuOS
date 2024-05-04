@@ -96,6 +96,7 @@ struct task_struct{
     int32_t fd_table[MAX_FILES_OPEN_PER_PROC];//文件描述符数组
 
     uint32_t cwd_inode_nr;//进程所在工作目录的inode编号
+    int16_t parent_pid;//父进程的pid
 
     
 };
@@ -112,4 +113,5 @@ void thread_init(void);
 void thread_block(enum task_status stat);
 void thread_unblock(struct task_struct* pthread);
 void thread_yield(void);
+pid_t fork_pid(void);
 #endif

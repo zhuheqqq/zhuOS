@@ -5,7 +5,8 @@ enum SYSCALL_NR {
    SYS_GETPID,
    SYS_WRITE,
    SYS_MALLOC,
-   SYS_FREE
+   SYS_FREE,
+   SYS_FORK
 };
 uint32_t getpid(void);
 void* malloc(uint32_t size);

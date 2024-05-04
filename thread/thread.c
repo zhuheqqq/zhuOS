@@ -22,6 +22,7 @@ static struct list_elem* thread_tag;//用于保存队列中的线程节点
 struct lock pid_lock;//分配pid锁
 
 extern void switch_to(struct task_struct* cur,struct task_struct* next);
+extern void init(void);
 
 //系统空闲时运行的线程
 static void idle(void* arg UNUSED) {
@@ -104,7 +105,7 @@ void init_thread(struct task_struct* pthread,char* name,int prio){
     pthread->pgdir=NULL;
     pthread->stack_magic=0x19870916;//自定义魔数
     pthread->cwd_inode_nr = 0; //以根目录为默认工作路径
-    
+    pthread->parent_pid = -1;   //默认没有父进程
 
 }
 
@@ -230,6 +231,10 @@ void thread_yield(void) {
     intr_set_status(old_status);
 }
 
+//简单的封装，使得能被外部函数调用
+pid_t fork_pid(void) {
+    return allocate_pid();
+}
 
 //初始化线程环境
 void thread_init(void){
@@ -237,6 +242,9 @@ void thread_init(void){
     list_init(&thread_ready_list);
     list_init(&thread_all_list);
     lock_init(&pid_lock);
+
+    //创建第一个用户进程init
+    process_execute(init, "init");
 
 
     //将当前main函数创建为线程
