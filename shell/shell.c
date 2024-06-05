@@ -42,7 +42,8 @@ static void readline(char* buf, int32_t count) {
 	    }
 	    break;
 
-	 /* 非控制键则输出字符 */
+	 /* 非控制键则输出字符 */int32_t file_open(uint32_t inode_no, uint8_t flag);
+int32_t file_close(struct file* file);
 	 default:
 	    putchar(*pos);
 	    pos++;
@@ -62,5 +63,5 @@ void my_shell(void) {
 	 continue;
       }
    }
-   PANIC("my_shell: should not be here");
+   panic("my_shell: should not be here");
 }

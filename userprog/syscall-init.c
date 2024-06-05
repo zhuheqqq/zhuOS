@@ -7,7 +7,7 @@
 #include "memory.h"
 #include "fs.h"
 
-extern cls_screen;
+
 
 #define syscall_nr 32 
 typedef void* syscall;

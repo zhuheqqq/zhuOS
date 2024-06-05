@@ -310,7 +310,7 @@ int32_t file_write(struct file* file, const void* buf, uint32_t count) {
 
                 //每分配一个块就将位图同步到硬盘
                 block_bitmap_idx = block_lba - cur_part->sb->data_start_lba;
-                bitmap_sync(cur_part, block_bitmap_alloc, BLOCK_BITMAP);
+                bitmap_sync(cur_part, block_bitmap_idx, BLOCK_BITMAP);
 
                 block_idx++;
             }

@@ -2,13 +2,15 @@
 #include "stdint.h"
 #include "string.h"
 #include "global.h"
-#include "memory.h"
-#include "interrupt.h"
-#include "list.h"
 #include "debug.h"
+#include "interrupt.h"
 #include "print.h"
+#include "memory.h"
 #include "process.h"
-#include "sync.h"
+#include "stdio.h"
+#include "console.h"
+#include "fs.h"
+#include "file.h"
 
 
 #define PG_SIZE 4096
@@ -244,7 +246,7 @@ void thread_init(void){
     lock_init(&pid_lock);
 
     //创建第一个用户进程init
-    process_execute(init, "init");
+    //process_execute(init, "init");
 
 
     //将当前main函数创建为线程

@@ -1,7 +1,7 @@
 #ifndef __FS_FS_H
 #define __FS_FS_H
 #include "stdint.h"
-#include "ide.h"
+
 
 #define MAX_FILES_PER_PART 4096 //分区支持最大创建的文件数
 #define BITS_PER_SECTOR 4096  //每扇区的位数
@@ -33,6 +33,13 @@ enum whence {
     SEEK_END
 };
 
+/* 文件属性结构体 */
+struct stat {
+   uint32_t st_ino;		 // inode编号
+   uint32_t st_size;		 // 尺寸
+   enum file_types st_filetype;	 // 文件类型
+};
+
 //用来记录查找文件过程中已找到的上级路径，也就是查找文件过程中“走过的地方”
 struct path_search_record {
     char searched_path[MAX_PATH_LEN];
@@ -41,11 +48,25 @@ struct path_search_record {
 };
 
 extern struct partition* cur_part;
+void filesys_init(void);
+char* path_parse(char* pathname, char* name_store);
 int32_t path_depth_cnt(char* pathname);
 int32_t sys_open(const char* pathname, uint8_t flags);
-void filesys_init(void);
-int32_t sys_write(int32_t fd,const void* buf,uint32_t count);
+int32_t sys_close(int32_t fd);
+int32_t sys_write(int32_t fd, const void* buf, uint32_t count);
+int32_t sys_read(int32_t fd, void* buf, uint32_t count);
 int32_t sys_lseek(int32_t fd, int32_t offset, uint8_t whence);
 int32_t sys_unlink(const char* pathname);
 int32_t sys_mkdir(const char* pathname);
+struct dir* sys_opendir(const char* pathname);
+int32_t sys_closedir(struct dir* dir);
+struct dir_entry* sys_readdir(struct dir* dir);
+void sys_rewinddir(struct dir* dir);
+int32_t sys_rmdir(const char* pathname);
+char* sys_getcwd(char* buf, uint32_t size);
+int32_t sys_chdir(const char* path);
+int32_t sys_stat(const char* path, struct stat* buf);
+void sys_putchar(char char_asci);
+uint32_t fd_local2global(uint32_t local_fd);
+void sys_help(void);
 #endif

@@ -23,6 +23,7 @@ intr_handler idt_table[IDT_DESC_CNT];
 extern intr_handler intr_entry_table[IDT_DESC_CNT];//声明引用定义在kernel.S中的中断处理函数入口数组
 extern uint32_t syscall_handler(void);
 
+
 //中断门描述符结构体
 struct gate_desc{
     uint16_t func_offset_low_word;

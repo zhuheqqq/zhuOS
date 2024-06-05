@@ -5,6 +5,7 @@
 #include "../thread/sync.h"
 #include "../thread/thread.h"
 #include "console.h"
+#include "print.h"
 static struct lock console_lock;//控制台锁即终端锁
 
 //初始化终端

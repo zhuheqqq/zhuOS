@@ -293,7 +293,7 @@ static void mem_pool_init(uint32_t all_mem){
     put_str("\n");
 
     put_str("------------------user_pool_bitmap_start:");
-    put_int(user_pool.pool_bitmap.bits);
+    put_int((int)user_pool.pool_bitmap.bits);
     put_str("\n");
 
     put_str("------------------user_pool_phy_addr_start:");

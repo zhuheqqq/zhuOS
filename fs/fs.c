@@ -10,17 +10,16 @@
 #include "global.h"
 #include "debug.h"
 #include "memory.h"
+#include "print.h"
 #include "file.h"
+#include "console.h"
+#include "keyboard.h"
+#include "ioqueue.h"
+
 
 struct partition* cur_part; //默认情况下操作的是哪个分区
 extern struct ioqueue kbd_buf;
 
-//文件属性结构体
-struct stat {
-    uint32_t st_ino;        //inode编号
-    uint32_t st_size;   //尺寸
-    enum file_types st_filetype;//文件类型
-};
 
 //在分区链表中找到名为part_name的分区，并将其指针赋值给cur_part
 //是list_traversal的回调函数
@@ -121,6 +120,7 @@ static void partition_format(struct partition *part)
 
     printk("%s info:\n", part->name);
     printk("   magic:0x%x\n   part_lba_base:0x%x\n   all_sectors:0x%x\n   inode_cnt:0x%x\n   block_bitmap_lba:0x%x\n   block_bitmap_sectors:0x%x\n   inode_bitmap_lba:0x%x\n   inode_bitmap_sectors:0x%x\n   inode_table_lba:0x%x\n   inode_table_sectors:0x%x\n   data_start_lba:0x%x\n", sb.magic, sb.part_lba_base, sb.sec_cnt, sb.inode_cnt, sb.block_bitmap_lba, sb.block_bitmap_sects, sb.inode_bitmap_lba, sb.inode_bitmap_sects, sb.inode_table_lba, sb.inode_table_sects, sb.data_start_lba);
+    
 
 
     
@@ -197,7 +197,7 @@ static void partition_format(struct partition *part)
 }
 
 //解析命令
-static char* path_parse(char* pathname, char* name_store) {
+char* path_parse(char* pathname, char* name_store) {
     if(pathname[0] == '/') {//根目录不用单独解析
         while(*(++pathname) == '/');//跳过////
     }
@@ -361,7 +361,7 @@ int32_t sys_open(const char* pathname, uint8_t flags) {
 }
 
 //将文件描述符转化为文件表的下标
-static uint32_t fd_local2global(uint32_t local_fd) {
+uint32_t fd_local2global(uint32_t local_fd) {
     struct task_struct* cur = running_thread();
     int32_t global_fd = cur->fd_table[local_fd];
     ASSERT(global_fd >= 0 && global_fd < MAX_FILE_OPEN);
