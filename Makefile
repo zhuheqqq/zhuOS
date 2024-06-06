@@ -210,5 +210,5 @@ debug:
 	rm -f /home/zhuheqin/Desktop/bochs-2.8-debug/hd60M.img.lock
 	~/Desktop/bochs-2.8-debug/bin/bochs  -f ~/Desktop/bochs-2.8-debug/bochsrc.disk
 
-all: 	build hd clean
+all: build hd clean
 all-gdb:  build hd-gdb debug

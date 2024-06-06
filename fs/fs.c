@@ -17,6 +17,7 @@
 #include "ioqueue.h"
 
 
+
 struct partition* cur_part; //默认情况下操作的是哪个分区
 extern struct ioqueue kbd_buf;
 
@@ -62,6 +63,7 @@ static bool mount_partition(struct list_elem* pelem, int arg) {
         cur_part->inode_bitmap.btmp_bytes_len = sb_buf->inode_bitmap_sects * SECTOR_SIZE;
         //从硬盘上读入块位图到分区的block_bitmap_bits
         ide_read(hd, sb_buf->block_bitmap_lba, cur_part->inode_bitmap.bits, sb_buf->inode_bitmap_sects);
+        printk("cur_part->inode_bitmap.bits:%d",*(unsigned int *)cur_part->inode_bitmap.bits);
 
         list_init(&cur_part->open_inodes);
         printk("mount %s done!\n",part->name);
@@ -82,6 +84,7 @@ static bool mount_partition(struct list_elem* pelem, int arg) {
 // 格式化分区，初始化分区的元信息，创建文件系统
 static void partition_format(struct partition *part)
 {
+    
     uint32_t boot_sector_sects = 1;
     uint32_t super_block_sects = 1;
     uint32_t inode_bitmap_sects = DIV_ROUND_UP(MAX_FILES_PER_PART, BITS_PER_SECTOR);

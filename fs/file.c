@@ -9,6 +9,7 @@
 #include "string.h"
 #include "thread.h"
 #include "global.h"
+#include "print.h"
 
 #define DEFAULT_SECS 1
 
@@ -50,6 +51,7 @@ int32_t pcb_fd_install(int32_t global_fd_idx) {
 
 //分配一个i结点，返回i结点号
 int32_t inode_bitmap_alloc(struct partition* part) {
+    printk("cur_part->inode_bitmap.bits:%d",*(unsigned int *)part->inode_bitmap.bits);
     int32_t bit_idx = bitmap_scan(&part->inode_bitmap, 1);
     if(bit_idx == -1) {
         return -1;
@@ -150,6 +152,7 @@ int32_t file_create(struct dir* parent_dir, char* filename, uint8_t flag) {
     memset(io_buf, 0, 1024);
 
     //3.将新创建的文件i结点内容同步到硬盘
+    printk("new file inode:%d",new_file_inode->i_no);
     inode_sync(cur_part, new_file_inode, io_buf);
 
     //4.将inode_bitmap位图同步到硬盘
@@ -184,7 +187,9 @@ int32_t file_open(uint32_t inode_no, uint8_t flag) {
         printk("exceed max open files\n");
         return -1;
     }
+    printk("open inode:%d\n",inode_no);
     file_table[fd_idx].fd_inode = inode_open(cur_part, inode_no);
+    //printk("inode[0]=%d inode[1]=%d\n",file_table[fd_idx].fd_inode->i_sectors[0],file_table[fd_idx].fd_inode->i_sectors[1]);
     file_table[fd_idx].fd_pos = 0;//每次打开文件，要将fd_pos还原为0,即让文件内的指针指向开头
     file_table[fd_idx].fd_flag = flag;
 
@@ -220,6 +225,7 @@ int32_t file_close(struct file* file) {
 
 //把buf中的count个字节写入file
 int32_t file_write(struct file* file, const void* buf, uint32_t count) {
+    printk("inode[0]=%d\n",file->fd_inode->i_sectors[0]);
     if((file->fd_inode->i_size + count) > (BLOCK_SIZE * 140)) {
         printk("exceed max file_size 71680 bytes, write file failed\n");
         return -1;

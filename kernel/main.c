@@ -12,6 +12,7 @@
 #include "../lib/stdio.h"
 #include "memory.h"
 #include "fs.h"
+#include "string.h"
 #include "shell.h"
 
 
@@ -21,13 +22,25 @@ void u_prog_a(void);
 void u_prog_b(void);
 
 int main(void) {
+
+   // put_str("I am kernel\n");
+   // init_all();
+   // process_execute(u_prog_a, "u_prog_a");
+   // process_execute(u_prog_b, "u_prog_b");
+   // thread_start("k_thread_a", 31, k_thread_a, "I am thread_a");
+   // thread_start("k_thread_b", 31, k_thread_b, "I am thread_b");
+   // sys_open("/file1", O_CREAT);
+   // while(1);
+   // return 0;
+
    put_str("I am kernel\n");
    init_all();
-   process_execute(u_prog_a, "u_prog_a");
-   process_execute(u_prog_b, "u_prog_b");
-   thread_start("k_thread_a", 31, k_thread_a, "I am thread_a");
-   thread_start("k_thread_b", 31, k_thread_b, "I am thread_b");
-   sys_open("/file1", O_CREAT);
+
+   uint32_t fd = sys_open("/file1", O_RDWR);
+   printf("fd:%d\n", fd);
+   sys_write(fd, "hello,world\n", 12);
+   sys_close(fd);
+   printf("%d closed now\n", fd);
    while(1);
    return 0;
 }
