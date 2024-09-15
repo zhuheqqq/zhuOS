@@ -39,7 +39,7 @@
 #### 位图
 位图是用字节中的 1 位来映射其他单位大小的资源，按位与资源之间是一对一的对应关系，组合起来就形成了映射。
 
-![位图](static/位图与内存.png)
+<div align=center> <img src="static/位图与内存.png" weight=60%></div>
 
 `struct bitmap` 中只定义两个成员：位图指针 bits 和位图的字节长度 btmp_bytes_len。位图长度取决于所管理资源的大小，长度不固定，所以用指针来记录位图的地址，真正的位图由上一级模块提供并赋给 bits。
 - bitmap_scan_test 函数判断位图 btmp 中的第 bit_idx 位是否为 1，此函数被 bitmap_scan 调用，多次调用可获得连续多个可用位。
@@ -85,6 +85,10 @@
 - 用宏实现用户空间系统调用接口 syscall,最大支持 3 个参数的系统调用，故只保存 syscall[0-3]，寄存器传递参数，eax 为子功能号，ebx 保存第一个参数，ecx 保存第二个参数，edx 保存第三个参数
 
 ### 文件系统
+
+<div align=center> <img src="static/文件系统.png" width=60%></div>
+
+
 - 每个文件都有自己单独的 inode，inode 是文件实体数据块在文件系统上的元信息
 - 所有文件的 inode 集中管理，形成 inode 数组，每个 inode 编号就是在该 inode 数组中的下标
 - inode 中的前 12 个直接数据块指针和后 3 个间接块索引表用于指向文件的数据块实体
