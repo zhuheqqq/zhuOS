@@ -15,6 +15,7 @@
 
 ### 1、MBR、EBR、DBR和OBR各是什么
 一张图带你看懂:)
+
 ![MBR、EBR、DBR和OBR各是什么](static/MBR+OBR+DBR+EBR.png)
 
 ### 2、BIOS相关
