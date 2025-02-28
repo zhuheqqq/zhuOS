@@ -13,3 +13,14 @@ make all
 /usr/bin/bochs -f bochsrc.disk
 ```
 然后回车 输入 c（即continue）即可进入运行界面
+
+
+### 运行zhuOS
+在 ～/tmp目录下
+
+```c
+cd zhuOS
+make run
+```
+
+即可启动
